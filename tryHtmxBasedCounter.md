@@ -37,18 +37,6 @@ teapot	 exception: Error ->  [ :ex :req | | content |
 teapot GET: '/ping' -> 'pong'.
 ```
 
-### Operate
-
-Control it with
-
-```smalltalk
-"Start the HTTP server."
-teapot start.
-
-"Stop the HTTP server."
-teapot stop.
-```
-
 ### Declare the templates
 
 ```smalltalk
@@ -99,3 +87,15 @@ teapot POST: '/decrease' -> [ :req |
 ```
 
 Start the service and have fun.
+
+### Operation
+
+Control it with
+
+```smalltalk
+"Start the HTTP server."
+teapot start.
+
+"Stop the HTTP server."
+teapot stop.
+```

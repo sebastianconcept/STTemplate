@@ -33,7 +33,7 @@ sstEcho := STTemplate on: '<st [ | echo | echo := self allButFirst ><h1>Echoing:
 teapot GET: '/echo/<message>' -> [ :req | sstEcho renderOn: (req at: #message) ].
 ```
 
-### Operate the service
+### Operation
 ```smalltalk
 "Start the HTTP server."
 teapot start.

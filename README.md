@@ -20,10 +20,13 @@ Smalltalk template library
 ```smalltalk
 "In Pharo 10"
 
+"By default it installs 'Core'"
 Metacello new
   baseline: 'STTemplate';
   repository: 'github://sebastianconcept/STTemplate:v0.0.1';
   load.
+
+"Optionally use `load: #('Core' 'Tests')`" 
 ```
 
 Or as dependency in your `Baseline`

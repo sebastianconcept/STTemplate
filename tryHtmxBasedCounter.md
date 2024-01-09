@@ -77,7 +77,7 @@ sttCounterPage := STTemplate on: '<!DOCTYPE html>
   ></script>
 </html>'.
 
-"The one for just the one used to update on increase/decrease"
+"The one for just the part used to update on increase/decrease"
 sttCounterView := '<h1 id="counterValue"><st= self></h1>' asSTTemplate.
 ```
 

@@ -122,7 +122,7 @@ See all the tests in `STTemplateTest`.
 ## Performance
 On the performance side it should be noted that at least half the motivation for using templates is because they should be "cheap" to render. 
 
-That said, in the first proof of concept here, it was compiling the template sources at every evaluation and in this model used here it roughly was doing 900/sec which is of course not impressive at all but also not needed. 
+That said, in the first proof of concept here, it was compiling the template sources at every evaluation and in this model used here it roughly was doing 450 renders/sec which is of course not impressive at all but also not needed. 
 
 Why extracting code and compiling at every render if you strictly need it only once?
 

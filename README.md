@@ -136,7 +136,7 @@ Time to publish as a pre-release version.
 
 ## Backstory
 
-While searching for a templating system in Smalltalk I've sumbled upon Norbert Hartl's [Mustache](https://github.com/noha/mustache) implementation. I've adopted it in [Ride](https://github.com/sebastianconcept/ride) `v0.0.15` and it worked remarkably well. As per january 2024, I have it production in one case here: [PhotograFX](https://photografx.pro).
+While searching for a templating system in Smalltalk I've stumbled upon Norbert Hartl's [Mustache](https://github.com/noha/mustache) implementation. I've adopted it in [Ride](https://github.com/sebastianconcept/ride) `v0.0.15` and it worked remarkably well. As per january 2024, I have it production in one case here: [PhotograFX](https://photografx.pro).
 
 While Mustache templates do their job, there are two issues with them:
 1. The controllers having them as views, might become a bit busy in preparing the model for the Mustache templates and
@@ -146,6 +146,6 @@ This motivated me to explore a design based on efficient templates tailored for 
 
 Despite my extensive experience with  [Seaside](https://seaside.st/), I wanted to delve into the concept of a Smalltalk web app driven by templates. The primary motivation was to maintain easy the adoption of already made HTML and a stateless software design, anticipating linear memory scaling and maximizing operations per second per image.
 
-Searching further resulted in finding [Smalltalk/X - STT - Smalltalk Templates](https://live.exept.de/stt/default.stt) and a bit later this one from 2002 for Squeak [Squeak STT - Smalltalk Templates](https://wiki.squeak.org/squeak/2604). After loading it and doing some adapting it revealed not to cover needed cases but inspired creating this library here. Thank you Federico Gregorio Stilman and Diego Gomez Deck for that inspiting proof of concept.
+Searching further resulted in finding [Smalltalk/X - STT - Smalltalk Templates](https://live.exept.de/stt/default.stt) and a bit later this one from 2002 for Squeak [Squeak STT - Smalltalk Templates](https://wiki.squeak.org/squeak/2604). After loading it and doing some adapting it revealed not to cover needed cases but inspired creating this library here. Thank you Federico Gregorio Stilman and Diego Gomez Deck for that inspiring proof of concept.
 
 

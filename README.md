@@ -128,7 +128,7 @@ Why extracting code and compiling at every render if you strictly need it only o
 
 ![mustacheAndSTT](mustacheAndSTT.jpeg)
 
-The streams based implementation with lazily compiled method caching and using a proper model it went from 900 renders/sec to ~72K renders/sec so that is not going to be the bottleneck of your web app:
+The streams based implementation with lazily compiled method caching and using a proper model it went from ~450 renders/sec to ~72K renders/sec so that is not going to be the bottleneck of your web app:
 
 ![profiling](profilingCachingCompiledMethod.png)
 

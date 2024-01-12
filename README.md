@@ -93,7 +93,9 @@ adds 2 to the context sent with `sttRenderOn: 40`"
 ```
 
 ```smalltalk
-"Displays `Answer:` and 42 after transforming them:"
+"Render the template on the given association, hence `self`,
+so it displays `Answer: ` coming from `self key capitalized, ': '`
+and then `42` coming from displaying `self value + 2`"
 
 '<p>The <span><st= self key capitalized, '': ''></span><span><st= self value + 2></span></p>' sttRenderOn: (#answer -> 40).
 "'<p>The <span>Answer: </span><span>42</span></p>'"

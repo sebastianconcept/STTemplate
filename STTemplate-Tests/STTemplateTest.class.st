@@ -177,6 +177,58 @@ STTemplateTest >> testClosureWithChildDisplayingValueUsingCustomTags [
 ]
 
 { #category : #tests }
+STTemplateTest >> testComposedWithNamedPartials [
+
+	| rendered partials |
+	partials := Dictionary new
+		            at: #namedYield put: '<p>This content</p>' asSTTemplate;
+		            yourself.
+
+	rendered := '<h1>Contents</h1><div><st= STT yield: #namedYield ></div>'
+		            sttRenderOn: 42
+		            partials: partials.
+
+	self
+		assert: rendered
+		equals: '<h1>Contents</h1><div><p>This content</p></div>'
+]
+
+{ #category : #tests }
+STTemplateTest >> testComposedWithPartialsWithCustomizedContext [
+
+	| rendered partials |
+	partials := Dictionary new
+		            at: #namedYield
+		            put: '<p>This content is <st= self ></p>' asSTTemplate;
+		            yourself.
+
+	rendered := '<h1>Contents</h1><div><st= STT yield: #namedYield on: #(#programmatic #dynamic) atRandom ></div>'
+		            sttRenderOn: nil
+		            partials: partials.
+
+	self assert: (rendered
+		 = '<h1>Contents</h1><div><p>This content is programmatic</p></div>' 
+			 or: [ 
+				 rendered
+				 = '<h1>Contents</h1><div><p>This content is dynamic</p></div>' ])
+]
+
+{ #category : #tests }
+STTemplateTest >> testComposedWithUnnamedPartial [
+
+	| rendered partial |
+	partial := '<p>This content</p>' asSTTemplate.
+
+	rendered := '<h1>Contents</h1><div><st= STT yield ></div>'
+		            sttRenderOn: 42
+		            partial: partial.
+
+	self
+		assert: rendered
+		equals: '<h1>Contents</h1><div><p>This content</p></div>'
+]
+
+{ #category : #tests }
 STTemplateTest >> testDetectsCustomClosingTag [
 
 	| stt |
@@ -295,7 +347,7 @@ STTemplateTest >> testEnclosingNoCode [
 
 	self
 		assert: ('<p>Hello</p><span><st= ></span>' sttRenderOn: nil)
-		equals: '<p>Hello</p><span>nil</span>'
+		equals: '<p>Hello</p><span></span>'
 ]
 
 { #category : #tests }
@@ -356,6 +408,49 @@ STTemplateTest >> testNestedClosure [
 ]
 
 { #category : #tests }
+STTemplateTest >> testNestedClosureSource [
+
+	| stt shouldRender |
+	stt := STTemplate on: '
+		<st [ | answer | 
+			answer := self.
+		>
+			<ul>
+				<li><st= ''What is the answer'' ></li> 
+				<li>to the question? <st= answer asString ></li> 
+				<st [ answer := answer + 1>
+					<li>and the answer +1? That would be: <st= answer asString ></li>
+				<st ] value >
+			</ul>
+		<st ] value >'.
+
+	shouldRender := '| out result |
+out := String new writeStream.
+ [ | answer | 
+			answer := self.
+		.
+out nextPutAll: ''<ul>
+				<li>''.
+result := [  ''What is the answer''  ] value.
+out nextPutAll: result asString.
+out nextPutAll: ''</li> 
+				<li>to the question?''.
+result := [  answer asString  ] value.
+out nextPutAll: result asString.
+out nextPutAll: ''</li>''.
+ [ answer := answer + 1.
+out nextPutAll: ''<li>and the answer +1? That would be:''.
+result := [  answer asString  ] value.
+out nextPutAll: result asString.
+out nextPutAll: ''</li>''.
+ ] value .
+out nextPutAll: ''</ul>''.
+ ] value .
+^ out contents'.
+	self assert: stt asSmalltalkCode equals: shouldRender
+]
+
+{ #category : #tests }
 STTemplateTest >> testNestedDisplayValueFromCustomAttribute [
 
 	| stt context shouldRender source |
@@ -384,6 +479,232 @@ STTemplateTest >> testNestedDisplayValueFromCustomAttribute [
 		           yourself.
 	shouldRender := '<ul><li><div data-custom="questionEverything(42)"><span>Ask, </span><span>what?</span></div></li><li><div data-custom="questionEverything(''42'')"><span>Ask, </span><span>but what is the question?</span></div></li></ul>'.
 	self assert: (stt renderOn: context) equals: shouldRender
+]
+
+{ #category : #tests }
+STTemplateTest >> testRenderComposedRenderedWithoutContext [
+
+	| model job1 job2 partials template result rendered |
+	model := STTDummyJobModel new.
+	job1 := STTDummyJobModel new
+		        description: 'Job 1';
+		        yourself.
+	job2 := STTDummyJobModel new
+		        description: 'Job 2';
+		        yourself.
+	model jobs: { 
+			job1.
+			job2 }.
+	partials := Dictionary new
+		            at: #showJob put: '
+<div>
+	<h1>Partial content for #showJob</h1>
+	<p><st STT yield: #jobDetails ></p>
+</div>
+' asSTTemplate;
+		            at: #jobDetails
+		            put: '<span>Partial for #jobDetails</span>' asSTTemplate;
+		            yourself.
+	template := '
+<ul>
+	<st self jobs do: [ :job | >
+		<li>
+			<st= STT yield: #showJob >
+		</li>
+	<st ] >
+</ul>
+'.
+
+	result := '
+<ul>
+	<st self jobs do: [ :job | >
+		<li>
+			<div>
+				<h1>Partial content for #showJob</h1>
+				<p><span>Partial for #jobDetails</span></p>
+			</div>
+		</li>
+	<st ] >
+</ul>
+'.
+
+	self assert: rendered equals: result
+]
+
+{ #category : #tests }
+STTemplateTest >> testRenderComposedSnippetWithNamedYield [
+
+	| template partials |
+	template := '<st= STT yield: #showJob >' asSTTemplate.
+	partials := { (#showJob -> '<st= 42 >' asSTTemplate) } asDictionary.
+
+	self
+		assert: (template asSmalltalkSnippetWithPartials: partials)
+		equals: 'result := [  42  ] value.
+out nextPutAll: result asString.'
+]
+
+{ #category : #tests }
+STTemplateTest >> testRenderComposedSnippetWithoutContext [
+
+	| model job1 job2 partials template result rendered |
+	model := STTDummyJobModel new.
+	job1 := STTDummyJobModel new
+		        description: 'Job 1';
+		        yourself.
+	job2 := STTDummyJobModel new
+		        description: 'Job 2';
+		        yourself.
+	model jobs: { 
+			job1.
+			job2 }.
+	partials := Dictionary new
+		            at: #showJob put: '
+<div>
+	<h1>Partial content for #showJob</h1>
+	<p><st STT yield: #jobDetails ></p>
+</div>
+' asSTTemplate;
+		            at: #jobDetails
+		            put: '<span>Partial for #jobDetails</span>' asSTTemplate;
+		            yourself.
+	template := '
+<ul>
+	<st self jobs do: [ :job | >
+		<li>
+			<st= STT yield: #showJob >
+		</li>
+	<st ] >
+</ul>
+' asSTTemplate.
+
+template.
+
+]
+
+{ #category : #tests }
+STTemplateTest >> testRenderDoublyComposedSnippetWithNamedYield [
+
+	| template partials |
+	template := '<main><st= STT yield: #showJob ></main>' asSTTemplate.
+	partials := { 
+		            (#showJob
+		             ->
+		             '<section><st= STT yield: #jobDetails ></section>'
+			             asSTTemplate).
+		            (#jobDetails
+		             ->
+		             '<div><st= ''This is the #jobDetails content'' ></div>'
+			             asSTTemplate) } asDictionary.
+
+	self
+		assert: (template asSmalltalkSnippetWithPartials: partials)
+		equals: 'out nextPutAll: ''<main>''.
+out nextPutAll: ''<section>''.
+out nextPutAll: ''<div>''.
+result := [  ''This is the #jobDetails content''  ] value.
+out nextPutAll: result asString.
+out nextPutAll: ''</div>''.
+out nextPutAll: ''</section>''.
+out nextPutAll: ''</main>''.'
+]
+
+{ #category : #tests }
+STTemplateTest >> testRenderSimpleNamedYieldSnippet [
+
+	| template partials |
+	template := '<st= STT yield: #showJob >' asSTTemplate.
+	partials := { (#showJob -> '<st= 42 >' asSTTemplate) } asDictionary.
+
+	self
+		assert: (template asSmalltalkSnippetWithPartials: partials)
+		equals: 'result := [  42  ] value.
+out nextPutAll: result asString.'
+]
+
+{ #category : #tests }
+STTemplateTest >> testRenderSimpleNamedYieldSnippetWithoutDisplayToken [
+
+	| template partials |
+	template := '<st STT yield: #showJob >' asSTTemplate.
+	partials := { (#showJob -> '<st= 42 >' asSTTemplate) } asDictionary.
+
+	self
+		assert: (template asSmalltalkSnippetWithPartials: partials)
+		equals: 'result := [  42  ] value.
+out nextPutAll: result asString.'
+]
+
+{ #category : #tests }
+STTemplateTest >> testRenderTriplyComposedSnippetWithNamedYield [
+
+	| template partials |
+	template := '<main><st= STT yield: #showJob ></main>' asSTTemplate.
+	partials := { 
+		            (#showJob
+		             ->
+		             '<section><st= STT yield: #jobInfo ></section>'
+			             asSTTemplate).
+		            (#jobInfo
+		             ->
+			             '<div><p><st= ''This is the #jobInfo content.'' ></p></div><st= STT yield: #jobDetails ></div></div>'
+				             asSTTemplate).
+		            (#jobDetails
+		             ->
+		             '<div><st= ''This is the #jobDetails content'' ></div>'
+			             asSTTemplate) } asDictionary.
+
+	self
+		assert: (template asSmalltalkSnippetWithPartials: partials)
+		equals: 'out nextPutAll: ''<main>''.
+out nextPutAll: ''<section>''.
+out nextPutAll: ''<div><p>''.
+result := [  ''This is the #jobInfo content.''  ] value.
+out nextPutAll: result asString.
+out nextPutAll: ''</p></div>''.
+out nextPutAll: ''<div>''.
+result := [  ''This is the #jobDetails content''  ] value.
+out nextPutAll: result asString.
+out nextPutAll: ''</div>''.
+out nextPutAll: ''</div></div>''.
+out nextPutAll: ''</section>''.
+out nextPutAll: ''</main>''.'
+]
+
+{ #category : #tests }
+STTemplateTest >> testSourceForEnclosingNoCodeBeforeElement [
+
+	| template |
+	template := '<st 6+5 ><p>Hello</p>' asSTTemplate.
+	self assert: template asSmalltalkCode equals: '| out result |
+out := String new writeStream.
+
+6+5.
+out nextPutAll: ''<p>Hello</p>''.
+^ out contents'
+]
+
+{ #category : #tests }
+STTemplateTest >> testSourceForValueFromTempVar [
+
+	| source |
+	source := '<p>Hello</p><span>
+		<st= |answer| 
+			answer := 42. 
+			answer >
+		</span>'.
+
+	self
+		assert: source asSTTemplate asSmalltalkCode
+		equals: '| out result |
+out := String new writeStream.
+out nextPutAll: ''<p>Hello</p><span>''.
+result := [  |answer| 
+			answer := 42. 
+			answer  ] value.
+out nextPutAll: result asString.
+out nextPutAll: ''</span>''.
+^ out contents'
 ]
 
 { #category : #tests }

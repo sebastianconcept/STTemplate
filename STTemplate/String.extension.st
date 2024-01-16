@@ -16,3 +16,12 @@ String >> sttRenderOn: anObject [
 
 	^ self asSTTemplate renderOn: anObject
 ]
+
+{ #category : #'*STTemplate' }
+String >> sttRenderOn: anObject partials: partialsDictionarish [
+
+	"Answers the result of rendering an STTemplate
+	 created from the receiver and rendered using the given object."
+
+	^ self asSTTemplate renderOn: anObject partials: partialsDictionarish
+]

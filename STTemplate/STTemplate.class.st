@@ -657,7 +657,7 @@ STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTa
 	| prelude smalltalkExpression isYield partialName partialRenderedSource forDisplaying renderedSource displayResult |
 	isYield := false.
 	forDisplaying := false.
-	prelude := (src upToAll: openingTag) trimmed.
+	prelude := src upToAll: openingTag.
 	prelude ifNotEmpty: [ 
 		self addCrIfNeededOn: rendered.
 		"Adds any unrelated content previous to any block."
@@ -706,7 +706,7 @@ STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTa
 											and without using its answer."
 					                  String streamContents: [ :str | 
 						                  str
-							                  nextPutAll: smalltalkExpression trim.
+							                  nextPutAll: smalltalkExpression.
 						                  self
 							                  addLineTerminationFor: smalltalkExpression
 							                  on: str ] ]

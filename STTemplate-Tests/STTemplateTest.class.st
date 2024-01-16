@@ -250,6 +250,23 @@ STTemplateTest >> testComposedWithNamedPartials [
 ]
 
 { #category : #tests }
+STTemplateTest >> testComposedWithNamedPartialsWithContext [
+
+	| rendered partials |
+	partials := Dictionary new
+		            at: #namedYield put: '<p>This content is <st= self></p>' asSTTemplate;
+		            yourself.
+
+	rendered := '<h1>Contents</h1><div><st= STT yield: #namedYield ></div>'
+		            sttRenderOn: 42
+		            partials: partials.
+
+	self
+		assert: rendered
+		equals: '<h1>Contents</h1><div><p>This content is 42</p></div>'
+]
+
+{ #category : #tests }
 STTemplateTest >> testComposedWithPartialsWithCustomizedContext [
 
 	| rendered partials |
@@ -412,7 +429,7 @@ STTemplateTest >> testEnclosingNoCodeAfterElement [
 
 	| stt |
 	stt := '<p>Hello</p><st >' asSTTemplate.
-	self shouldnt: [ stt asSmalltalkCode ] raise: STTError.
+	self shouldnt: [ stt asSmalltalkSource ] raise: STTError.
 	self assert: (stt renderOn: nil) equals: '<p>Hello</p>'
 ]
 
@@ -517,7 +534,7 @@ out nextPutAll: ''
 		''.
  ] value.
 ^ out contents'.
-	self assert: stt asSmalltalkCode equals: shouldRender
+	self assert: stt asSmalltalkSource equals: shouldRender
 ]
 
 { #category : #tests }
@@ -746,7 +763,7 @@ STTemplateTest >> testSourceForEnclosingNoCodeBeforeElement [
 
 	| template |
 	template := '<st 6+5 ><p>Hello</p>' asSTTemplate.
-	self assert: template asSmalltalkCode equals: '| out result |
+	self assert: template asSmalltalkSource equals: '| out result |
 out := String new writeStream.
  6+5 .
 out nextPutAll: ''<p>Hello</p>''.
@@ -764,7 +781,7 @@ STTemplateTest >> testSourceForValueFromTempVar [
 		</span>'.
 
 	self
-		assert: source asSTTemplate asSmalltalkCode
+		assert: source asSTTemplate asSmalltalkSource
 		equals: '| out result |
 out := String new writeStream.
 out nextPutAll: ''<p>Hello</p><span>

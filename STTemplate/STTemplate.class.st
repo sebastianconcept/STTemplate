@@ -1,7 +1,7 @@
 "
 I'm the Smalltalk template class.
 
-I can run Smalltalk code found between the opening (`<st`) and closing (`>`) tags when present in my content.
+I can run Smalltalk code found between the opening (`<st`) and closing (`>`) tags in my content.
 
 There are two ways to have Smalltalk running from my instances:
 ### 1. Displayed
@@ -201,34 +201,12 @@ STTemplate >> addLineTerminationFor: smalltalkExpression on: rendered [
 ]
 
 { #category : #converting }
-STTemplate >> asSmalltalkCode [
-
-	"Returns the Smalltalk source code corresponding to the receiver."
-
-	| rendered src openingTag closingTag displayToken |
-	openingTag := self class options at: #openingTag.
-	closingTag := self class options at: #closingTag.
-	displayToken := self class options at: #displayToken.
-
-	rendered := self newSourceStream.
-	src := source readStream.
-
-	rendered
-		cr;
-		nextPutAll: (self asSmalltalkSnippetWithPartials: {  } asDictionary).
-
-	^ rendered
-		  cr;
-		  nextPutAll: '^ out contents';
-		  contents
-]
-
-{ #category : #converting }
 STTemplate >> asSmalltalkCodeOld [
 
 	"Returns the Smalltalk source code corresponding to the receiver."
 
 	| rendered src openingTag closingTag displayToken |
+	self deprecated: 'use asSmalltalkSource'.
 	openingTag := self class options at: #openingTag.
 	closingTag := self class options at: #closingTag.
 	displayToken := self class options at: #displayToken.
@@ -254,7 +232,60 @@ STTemplate >> asSmalltalkCodeOld [
 ]
 
 { #category : #converting }
-STTemplate >> asSmalltalkCodeOn: anObject partial: partial [
+STTemplate >> asSmalltalkSnippetWithPartials: partialsDictionarish [
+
+	"Returns the Smalltalk source code corresponding to the receiver
+	without the preamble of creating the out WriteStream nor making it return its contents.
+	Just asuming the out stream is already available in the context
+	and stream the produce Smalltalk source code adding it to it."
+
+	| rendered src openingTag closingTag displayToken |
+	openingTag := self class options at: #openingTag.
+	closingTag := self class options at: #closingTag.
+	displayToken := self class options at: #displayToken.
+
+	rendered := String new writeStream.
+	src := source readStream.
+
+	"Process every block writing the output 
+	in the rendered stream until all the source gets read."
+	[ src atEnd ] whileFalse: [ 
+		self
+			renderSourceFor: src
+			on: rendered
+			openingTag: openingTag
+			closingTag: closingTag
+			displayToken: displayToken
+			partials: partialsDictionarish ].
+
+	^ rendered contents
+]
+
+{ #category : #converting }
+STTemplate >> asSmalltalkSource [
+
+	"Returns the Smalltalk source code corresponding to the receiver."
+
+	| rendered src openingTag closingTag displayToken |
+	openingTag := self class options at: #openingTag.
+	closingTag := self class options at: #closingTag.
+	displayToken := self class options at: #displayToken.
+
+	rendered := self newSourceStream.
+	src := source readStream.
+
+	rendered
+		cr;
+		nextPutAll: (self asSmalltalkSnippetWithPartials: {  } asDictionary).
+
+	^ rendered
+		  cr;
+		  nextPutAll: '^ out contents';
+		  contents
+]
+
+{ #category : #converting }
+STTemplate >> asSmalltalkSourceOn: anObject partial: partial [
 
 	"Returns the Smalltalk source code corresponding to the receiver."
 
@@ -285,7 +316,7 @@ STTemplate >> asSmalltalkCodeOn: anObject partial: partial [
 ]
 
 { #category : #converting }
-STTemplate >> asSmalltalkCodeOn: anObject partials: partialsDictionarish [
+STTemplate >> asSmalltalkSourceOn: anObject partials: partialsDictionarish [
 
 	"Returns the Smalltalk source code corresponding to the receiver."
 
@@ -311,42 +342,20 @@ STTemplate >> asSmalltalkCodeOn: anObject partials: partialsDictionarish [
 	^ rendered
 		  cr;
 		  nextPutAll: '^ out contents';
-		  cr;
 		  contents
 ]
 
 { #category : #converting }
-STTemplate >> asSmalltalkSnippetWithPartials: partialsDictionarish [
+STTemplate >> asSmalltalkSourceWithPartials: partialsDictionarish [
 
-	"Returns the Smalltalk source code corresponding to the receiver."
-
-	| rendered src openingTag closingTag displayToken |
-	openingTag := self class options at: #openingTag.
-	closingTag := self class options at: #closingTag.
-	displayToken := self class options at: #displayToken.
-
-	rendered := String new writeStream.
-	src := source readStream.
-
-	"Process every block writing the output 
-	in the rendered stream until all the source gets read."
-	[ src atEnd ] whileFalse: [ 
-		self
-			renderSourceFor: src
-			on: rendered
-			openingTag: openingTag
-			closingTag: closingTag
-			displayToken: displayToken
-			partials: partialsDictionarish ].
-
-	^ rendered contents
+	^ self asSmalltalkSourceOn: nil partials: partialsDictionarish
 ]
 
 { #category : #actions }
 STTemplate >> basicCompile [
 
 	^ Smalltalk compiler
-		  source: self asSmalltalkCode;
+		  source: self asSmalltalkSource;
 		  context: nil;
 		  failBlock: [ ^ nil ];
 		  noPattern: true;
@@ -358,7 +367,7 @@ STTemplate >> basicCompile [
 STTemplate >> basicCompileOn: anObject partial: partial [
 
 	^ Smalltalk compiler
-		  source: (self asSmalltalkCodeOn: anObject partial: partial);
+		  source: (self asSmalltalkSourceOn: anObject partial: partial);
 		  context: nil;
 		  failBlock: [ ^ nil ];
 		  noPattern: true;
@@ -371,7 +380,7 @@ STTemplate >> basicCompileOn: anObject partials: partialsDictionarish [
 
 	^ Smalltalk compiler
 		  source:
-			  (self asSmalltalkCodeOn: anObject partials: partialsDictionarish);
+			  (self asSmalltalkSourceOn: anObject partials: partialsDictionarish);
 		  context: nil;
 		  failBlock: [ ^ nil ];
 		  noPattern: true;
@@ -455,7 +464,7 @@ STTemplate >> getPartialNameFrom: smalltalkExpression [
 		  [ src peek isAlphaNumeric ] whileTrue: [ s nextPut: src next ] ]
 ]
 
-{ #category : #actions }
+{ #category : #accessing }
 STTemplate >> getRenderedPartialSourceNamed: partialName partials: namedPartialsDictionarish [
 
 	| snippet |

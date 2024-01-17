@@ -31,6 +31,6 @@ STT class >> yield: aNamedPartialToYield on: aContext [
 				           ('{1} partial is missing' format:
 					            { aNamedPartialToYield asString }) ].
 	outStream := STTCurrentRenderingStream value.
-	result := partial renderOn: aContext.
+	result := partial renderOn: aContext partials: renderingContext partials.
 	outStream nextPutAll: result
 ]

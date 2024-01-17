@@ -590,7 +590,7 @@ STTemplateTest >> testRenderComposedRenderedWithoutContext [
 		            at: #showJob put: '
 <div>
 	<h1>Partial content for #showJob</h1>
-	<div><st STT yield: #jobDetails ></div>
+	<div><st STT yield: #jobDetails on: self></div>
 </div>
 ' asSTTemplate;
 		            at: #jobDetails
@@ -610,14 +610,25 @@ STTemplateTest >> testRenderComposedRenderedWithoutContext [
 
 	result := '
 <ul>
-	<st self jobs do: [ :job | >
+	
 		<li>
-			<div>
-				<h1>Partial content for #showJob</h1>
-				<p><span>Partial for #jobDetails</span></p>
-			</div>
+			
+<div>
+	<h1>Partial content for #showJob</h1>
+	<div><p>Job ID: <span>1</span></p><p>Job description: <span>Job 1</span></p></div>
+</div>
+
 		</li>
-	<st ] >
+	
+		<li>
+			
+<div>
+	<h1>Partial content for #showJob</h1>
+	<div><p>Job ID: <span>2</span></p><p>Job description: <span>Job 2</span></p></div>
+</div>
+
+		</li>
+	
 </ul>
 '.
 

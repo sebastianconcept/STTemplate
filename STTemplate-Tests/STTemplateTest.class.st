@@ -506,6 +506,8 @@ STTemplateTest >> testNestedClosureSource [
 
 	shouldRender := '| out result |
 out := String new writeStream.
+STTCurrentRenderingStream value: out during: [
+
 out nextPutAll: ''
 		''.
  [ | answer | 
@@ -533,7 +535,7 @@ out nextPutAll: ''
 			</ul>
 		''.
  ] value.
-^ out contents'.
+^ out contents ]'.
 	self assert: stt asSmalltalkSource equals: shouldRender
 ]
 
@@ -571,36 +573,40 @@ STTemplateTest >> testNestedDisplayValueFromCustomAttribute [
 { #category : #tests }
 STTemplateTest >> testRenderComposedRenderedWithoutContext [
 
-	| model job1 job2 partials template result rendered |
-	model := STTDummyJobModel new.
+	| templateContext job1 job2 partials template result |
+	templateContext := STTDummyJobModel new.
 	job1 := STTDummyJobModel new
+		        jobId: 1;
 		        description: 'Job 1';
 		        yourself.
 	job2 := STTDummyJobModel new
+		        jobId: 2;
 		        description: 'Job 2';
 		        yourself.
-	model jobs: { 
+	templateContext jobs: { 
 			job1.
 			job2 }.
 	partials := Dictionary new
 		            at: #showJob put: '
 <div>
 	<h1>Partial content for #showJob</h1>
-	<p><st STT yield: #jobDetails ></p>
+	<div><st STT yield: #jobDetails ></div>
 </div>
 ' asSTTemplate;
 		            at: #jobDetails
-		            put: '<span>Partial for #jobDetails</span>' asSTTemplate;
+		            put:
+			            '<p>Job ID: <span><st= self jobId></span></p><p>Job description: <span><st= self description></span></p>'
+				            asSTTemplate;
 		            yourself.
 	template := '
 <ul>
 	<st self jobs do: [ :job | >
 		<li>
-			<st= STT yield: #showJob >
+			<st= STT yield: #showJob on: job>
 		</li>
 	<st ]>
 </ul>
-'.
+' asSTTemplate.
 
 	result := '
 <ul>
@@ -615,7 +621,9 @@ STTemplateTest >> testRenderComposedRenderedWithoutContext [
 </ul>
 '.
 
-	self assert: rendered equals: result
+	self
+		assert: (template renderOn: templateContext partials: partials)
+		equals: result
 ]
 
 { #category : #tests }
@@ -627,8 +635,7 @@ STTemplateTest >> testRenderComposedSnippetWithNamedYield [
 
 	self
 		assert: (template asSmalltalkSnippetWithPartials: partials)
-		equals: 'result := [  42  ] value.
-out nextPutAll: result asString.'
+		equals: ' STT yield: #showJob .'
 ]
 
 { #category : #tests }
@@ -687,26 +694,8 @@ STTemplateTest >> testRenderDoublyComposedSnippetWithNamedYield [
 	self
 		assert: (template asSmalltalkSnippetWithPartials: partials)
 		equals: 'out nextPutAll: ''<main>''.
-out nextPutAll: ''<section>''.
-out nextPutAll: ''<div>''.
-result := [  ''This is the #jobDetails content''  ] value.
-out nextPutAll: result asString.
-out nextPutAll: ''</div>''.
-out nextPutAll: ''</section>''.
+ STT yield: #showJob .
 out nextPutAll: ''</main>''.'
-]
-
-{ #category : #tests }
-STTemplateTest >> testRenderSimpleNamedYieldSnippet [
-
-	| template partials |
-	template := '<st= STT yield: #showJob >' asSTTemplate.
-	partials := { (#showJob -> '<st= 42 >' asSTTemplate) } asDictionary.
-
-	self
-		assert: (template asSmalltalkSnippetWithPartials: partials)
-		equals: 'result := [  42  ] value.
-out nextPutAll: result asString.'
 ]
 
 { #category : #tests }
@@ -718,8 +707,7 @@ STTemplateTest >> testRenderSimpleNamedYieldSnippetWithoutDisplayToken [
 
 	self
 		assert: (template asSmalltalkSnippetWithPartials: partials)
-		equals: 'result := [  42  ] value.
-out nextPutAll: result asString.'
+		equals: ' STT yield: #showJob .'
 ]
 
 { #category : #tests }
@@ -744,18 +732,37 @@ STTemplateTest >> testRenderTriplyComposedSnippetWithNamedYield [
 	self
 		assert: (template asSmalltalkSnippetWithPartials: partials)
 		equals: 'out nextPutAll: ''<main>''.
-out nextPutAll: ''<section>''.
-out nextPutAll: ''<div><p>''.
-result := [  ''This is the #jobInfo content.''  ] value.
-out nextPutAll: result asString.
-out nextPutAll: ''</p></div>''.
-out nextPutAll: ''<div>''.
-result := [  ''This is the #jobDetails content''  ] value.
-out nextPutAll: result asString.
-out nextPutAll: ''</div>''.
-out nextPutAll: ''</div></div>''.
-out nextPutAll: ''</section>''.
+ STT yield: #showJob .
 out nextPutAll: ''</main>''.'
+]
+
+{ #category : #tests }
+STTemplateTest >> testRenderTriplyComposedWithNamedYield [
+
+	| template partials templateContext |
+	templateContext := STTDummyJobModel new
+		                   jobId: 42;
+		                   description: 'job 1';
+		                   yourself.
+	template := '<main><st= STT yield: #showJob ></main>' asSTTemplate.
+	partials := { 
+		            (#showJob
+		             ->
+		             '<section><st= STT yield: #jobInfo ></section>'
+			             asSTTemplate).
+		            (#jobInfo
+		             ->
+			             '<div><p><st= ''This is the #jobInfo content.'' ></p></div><st= STT yield: #jobDetails ></div></div>'
+				             asSTTemplate).
+		            (#jobDetails
+		             ->
+			             '<div><st= ''Job Details: jobId is {1} and its description is {2}'' format: { self jobId asString. self description } ></div>'
+				             asSTTemplate) } asDictionary.
+
+	self
+		assert: (template renderOn: templateContext partials: partials)
+		equals:
+		'<main><section><div><p>This is the #jobInfo content.</p></div><div>Job Details: jobId is 42 and its description is job 1</div></div></div></section></main>'
 ]
 
 { #category : #tests }
@@ -765,9 +772,11 @@ STTemplateTest >> testSourceForEnclosingNoCodeBeforeElement [
 	template := '<st 6+5 ><p>Hello</p>' asSTTemplate.
 	self assert: template asSmalltalkSource equals: '| out result |
 out := String new writeStream.
+STTCurrentRenderingStream value: out during: [
+
  6+5 .
 out nextPutAll: ''<p>Hello</p>''.
-^ out contents'
+^ out contents ]'
 ]
 
 { #category : #tests }
@@ -784,6 +793,8 @@ STTemplateTest >> testSourceForValueFromTempVar [
 		assert: source asSTTemplate asSmalltalkSource
 		equals: '| out result |
 out := String new writeStream.
+STTCurrentRenderingStream value: out during: [
+
 out nextPutAll: ''<p>Hello</p><span>
 		''.
 result := [  |answer| 
@@ -792,7 +803,7 @@ result := [  |answer|
 out nextPutAll: result asString.
 out nextPutAll: ''
 		</span>''.
-^ out contents'
+^ out contents ]'
 ]
 
 { #category : #tests }

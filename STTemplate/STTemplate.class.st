@@ -280,7 +280,9 @@ STTemplate >> asSmalltalkSource [
 
 	^ rendered
 		  cr;
-		  nextPutAll: '^ out contents';
+		  "The closing bracket at the end corresponds to 
+			the end of the during closure for STTCurrentRenderingStream."
+		  nextPutAll: '^ out contents ]';
 		  contents
 ]
 
@@ -310,7 +312,9 @@ STTemplate >> asSmalltalkSourceOn: anObject partial: partial [
 
 	^ rendered
 		  cr;
-		  nextPutAll: '^ out contents';
+		  "The closing bracket at the end corresponds to 
+			the end of the during closure for STTCurrentRenderingStream."
+		  nextPutAll: '^ out contents ]';
 		  cr;
 		  contents
 ]
@@ -341,7 +345,9 @@ STTemplate >> asSmalltalkSourceOn: anObject partials: partialsDictionarish [
 
 	^ rendered
 		  cr;
-		  nextPutAll: '^ out contents';
+		  "The closing bracket at the end corresponds to 
+			the end of the during closure for STTCurrentRenderingStream."
+		  nextPutAll: '^ out contents ]';
 		  contents
 ]
 
@@ -467,13 +473,13 @@ STTemplate >> getPartialNameFrom: smalltalkExpression [
 { #category : #accessing }
 STTemplate >> getRenderedPartialSourceNamed: partialName partials: namedPartialsDictionarish [
 
-	| snippet |
-	snippet := (namedPartialsDictionarish at: partialName ifAbsent: [ 
-		            STTError signal:
-			            ('{1} partial is missing' format:
-				             { partialName asString }) ]) 
-		           asSmalltalkSnippetWithPartials: namedPartialsDictionarish.
-
+	| partial snippet |
+	partial := namedPartialsDictionarish at: partialName ifAbsent: [ 
+		           STTError signal:
+			           ('{1} partial is missing' format:
+				            { partialName asString }) ].
+	snippet := partial asSmalltalkSnippetWithPartials:
+		           namedPartialsDictionarish.
 	^ snippet
 ]
 
@@ -549,6 +555,9 @@ STTemplate >> newSourceStream [
 		  nextPutAll: '| out result |';
 		  cr;
 		  nextPutAll: 'out := String new writeStream.';
+		  cr;
+		  nextPutAll: 'STTCurrentRenderingStream value: out during: [';
+		  cr;
 		  yourself
 ]
 
@@ -561,15 +570,28 @@ STTemplate >> nextSmalltalkExpressionIn: src using: closingTag [
 { #category : #actions }
 STTemplate >> renderOn: anObject [
 
-	^ self compiledMethod valueWithReceiver: anObject arguments: #(  )
+	"	^ self compiledMethod valueWithReceiver: anObject arguments: #(  )"
+self flag: #clean.
+	^ self renderOn: anObject partials: Dictionary new
 ]
 
 { #category : #actions }
 STTemplate >> renderOn: anObject partials: partialsDictionarish [
 
-	^ (self compiledMethodOn: anObject partials: partialsDictionarish)
-		  valueWithReceiver: anObject
-		  arguments: #(  )
+	^ STTCurrentRenderingContext value
+		  ifNil: [ 
+			  | renderingContext |
+			  renderingContext := STTRenderingContext
+				                      on: anObject
+				                      partials: partialsDictionarish.
+			  STTCurrentRenderingContext value: renderingContext during: [ 
+				  (self compiledMethodOn: anObject partials: partialsDictionarish)
+					  valueWithReceiver: anObject
+					  arguments: #(  ) ] ]
+		  ifNotNil: [ 
+			  (self compiledMethodOn: anObject partials: partialsDictionarish)
+				  valueWithReceiver: anObject
+				  arguments: #(  ) ]
 ]
 
 { #category : #actions }
@@ -663,7 +685,7 @@ STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTa
 { #category : #actions }
 STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTag: closingTag displayToken: displayToken partials: namedPartialsDictionarish [
 
-	| prelude smalltalkExpression isYield partialName partialRenderedSource forDisplaying renderedSource displayResult |
+	| prelude smalltalkExpression isYield forDisplaying renderedSource displayResult partialRenderingSnippet |
 	isYield := false.
 	forDisplaying := false.
 	prelude := src upToAll: openingTag.
@@ -691,11 +713,13 @@ STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTa
 	Is that the case? Are there named partials to yield?"
 	(self hasNamedYield: smalltalkExpression) ifTrue: [ 
 		isYield := true.
-		partialName := self getPartialNameFrom: smalltalkExpression.
+		self flag: #clean.
+		"partialName := self getPartialNameFrom: smalltalkExpression.
 		partialRenderedSource := self
 			                         getRenderedPartialSourceNamed: partialName
 			                         partials: namedPartialsDictionarish.
-		renderedSource := partialRenderedSource ].
+		self halt.
+		renderedSource := partialRenderedSource " ].
 
 	"Or is it an unnamed partial to yield?"
 	(self isUnnamedYield: smalltalkExpression) ifTrue: [ 
@@ -704,8 +728,14 @@ STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTa
 
 	isYield
 		ifTrue: [ 
+			partialRenderingSnippet := String streamContents: [ :str | 
+				                           str nextPutAll: smalltalkExpression.
+				                           self
+					                           addLineTerminationFor:
+					                           smalltalkExpression
+					                           on: str ].
 			self addCrIfNeededOn: rendered.
-			rendered nextPutAll: partialRenderedSource ]
+			rendered nextPutAll: partialRenderingSnippet ]
 		ifFalse: [ 
 			smalltalkExpression trim ifEmpty: [ ^ self ].
 
@@ -714,8 +744,7 @@ STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTa
 				                  ifFalse: [ "Add the code directly without closure
 											and without using its answer."
 					                  String streamContents: [ :str | 
-						                  str
-							                  nextPutAll: smalltalkExpression.
+						                  str nextPutAll: smalltalkExpression.
 						                  self
 							                  addLineTerminationFor: smalltalkExpression
 							                  on: str ] ]

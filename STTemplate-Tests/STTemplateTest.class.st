@@ -710,6 +710,50 @@ out nextPutAll: ''</main>''.'
 ]
 
 { #category : #tests }
+STTemplateTest >> testRenderFourLevelsComposition [
+
+	| template partials templateContext |
+	templateContext := STTDummyJobModel new
+		                   jobId: 42;
+		                   description: 'job 1';
+		                   thing: 'something visual';
+		                   yourself.
+	template := '<main><st= STT yield: #levelOne ></main>' asSTTemplate.
+	partials := { 
+		            (#levelOne -> '<section>
+			<p><st= ''This is the #levelOne content (I include #levelTwo).'' ></p>
+			<div><st= STT yield: #levelTwo on: self></div>
+						</section>' asSTTemplate).
+		            (#levelTwo -> '<div>
+			<p><st= ''This is the #levelTwo content (I include #levelThree).'' ></p>
+			<div><st= STT yield: #levelThree on: self></div>
+			</div>' asSTTemplate).
+		            (#levelThree -> '<div>
+			<p><st= ''This is the #levelThree content (I include #levelFour).'' ></p>
+			<div><st= STT yield: #levelFour on: self></div>
+			</div>' asSTTemplate).
+		            (#levelFour
+		             ->
+		             '<p><st= ''This is the #levelFour content.'' ></p>
+						<p><st= self thing></p>'
+			             asSTTemplate) } asDictionary.
+
+	self
+		assert: (template renderOn: templateContext partials: partials)
+		equals: '<main><section>
+			<p>This is the #levelOne content (I include #levelTwo).</p>
+			<div><div>
+			<p>This is the #levelTwo content (I include #levelThree).</p>
+			<div><div>
+			<p>This is the #levelThree content (I include #levelFour).</p>
+			<div><p>This is the #levelFour content.</p>
+						<p>something visual</p></div>
+			</div></div>
+			</div></div>
+						</section></main>'
+]
+
+{ #category : #tests }
 STTemplateTest >> testRenderSimpleNamedYieldSnippetWithoutDisplayToken [
 
 	| template partials |

@@ -28,7 +28,7 @@ STT class >> yield: aNamedPartialToYield on: aContext [
 		           at: aNamedPartialToYield
 		           ifAbsent: [ 
 			           STTError signal:
-				           ('{1} partial is missing' format:
+				           ('Partial missing: {1}' format:
 					            { aNamedPartialToYield asString }) ].
 	outStream := STTCurrentRenderingStream value.
 	result := partial renderOn: aContext partials: renderingContext partials.

@@ -282,6 +282,21 @@ STTemplateTest >> testComposedWithPartial [
 ]
 
 { #category : #tests }
+STTemplateTest >> testComposedWithPartialWithCustomizedContext [
+
+	| rendered partial |
+	partial := '<p>The answer is <st= 40+self></p>' asSTTemplate.
+
+	rendered := '<h1>Contents</h1><div><st= STT yield ></div>'
+		            sttRenderOn: 2
+		            partial: partial.
+
+	self
+		assert: rendered
+		equals: '<h1>Contents</h1><div><p>The answer is 42</p></div>'
+]
+
+{ #category : #tests }
 STTemplateTest >> testComposedWithPartialsWithCustomizedContext [
 
 	| rendered partials |
@@ -307,14 +322,12 @@ STTemplateTest >> testComposedWithUnnamedPartial [
 	| rendered partial |
 	partial := '<p>This content</p>' asSTTemplate.
 
-	self should: [
 	rendered := '<h1>Contents</h1><div><st= STT yield ></div>'
 		            sttRenderOn: 42
-		            partial: partial] raise: Error.
-
-	"self
+		            partial: partial.
+	self
 		assert: rendered
-		equals: '<h1>Contents</h1><div><p>This content</p></div>'"
+		equals: '<h1>Contents</h1><div><p>This content</p></div>'
 ]
 
 { #category : #tests }

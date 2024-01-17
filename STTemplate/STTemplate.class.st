@@ -604,7 +604,11 @@ STTemplate >> renderOn: anObject partials: partialsDictionarish [
 { #category : #actions }
 STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTag: closingTag displayToken: displayToken [
 
+	"Answers the Smalltalk source code for the method that, once compiled and 
+	evaluated on a template context, returns its rendering."
+	
 	| prelude smalltalkExpression forDisplaying renderedSource displayResult |
+	
 	forDisplaying := false.
 	prelude := src upToAll: openingTag.
 	prelude ifNotEmpty: [ 
@@ -634,7 +638,7 @@ STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTa
 
 	"Or is it an unnamed partial to yield?"
 	(self isUnnamedYield: smalltalkExpression) ifTrue: [ 
-		^ self renderYieldFrom: smalltalkExpression on: rendered ].
+		^ self renderYieldOn: rendered ].
 
 	smalltalkExpression trim ifEmpty: [ ^ self ].
 
@@ -668,7 +672,7 @@ STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTa
 STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTag: closingTag displayToken: displayToken partial: anSTTemplate [
 
 	| prelude smalltalkExpression |
-	self halt.
+	self deprecated: 'not used'.
 	prelude := (src upToAll: openingTag) trimmed.
 	prelude ifNotEmpty: [ "Adds any unrelated content previous to any block."
 		rendered
@@ -774,9 +778,13 @@ STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTa
 ]
 
 { #category : #actions }
-STTemplate >> renderYieldFrom: smalltalkExpression on: rendered [
+STTemplate >> renderYieldOn: rendered [
 
-	| partialRenderingSnippet |
+	| partialRenderingSnippet smalltalkExpression |
+	"Preserves the context in which the partial should be rendered
+	and makes it available by grabbing it from the expected private selector key."
+	smalltalkExpression := 'STT yield: #_yield on: self'.
+
 	partialRenderingSnippet := String streamContents: [ :str | 
 		                           str nextPutAll: smalltalkExpression.
 		                           self

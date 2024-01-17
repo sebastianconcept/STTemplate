@@ -1,5 +1,5 @@
 "
-I help in the context when rendering STTemplate
+I help in the context when rendering `STTemplate`.
 "
 Class {
 	#name : #STT,

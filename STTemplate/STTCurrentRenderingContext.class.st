@@ -1,5 +1,5 @@
 "
-I provide access to the current STTRenderingContext
+I provide access to the current `STTRenderingContext`.
 "
 Class {
 	#name : #STTCurrentRenderingContext,

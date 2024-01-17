@@ -1,7 +1,7 @@
 "
-I provide access to the partials and template context that helps to render an STTemplate.
+I provide access to the partials and template context that helps to render an `STTemplate`.
 
-When rendering an STTemplate that incorporates partials, an STTRenderingContext provides the access to both the template context and the required partials. This is eventually needed by an STTemplate for a complete rendering.
+When rendering an `STTemplate` that incorporates partials, an `STTRenderingContext` provides the access to both the template context and the required partials. This is eventually needed by an `STTemplate` for a complete rendering.
 
 "
 Class {

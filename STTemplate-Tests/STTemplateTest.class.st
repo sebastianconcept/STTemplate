@@ -673,7 +673,7 @@ STTemplateTest >> testRenderComposedSnippetWithNamedYield [
 	partials := { (#showJob -> '<st= 42 >' asSTTemplate) } asDictionary.
 
 	self
-		assert: (template asSmalltalkSnippetWithPartials: partials)
+		assert: template asSmalltalkSnippet
 		equals: ' STT yield: #showJob .'
 ]
 
@@ -731,7 +731,7 @@ STTemplateTest >> testRenderDoublyComposedSnippetWithNamedYield [
 			             asSTTemplate) } asDictionary.
 
 	self
-		assert: (template asSmalltalkSnippetWithPartials: partials)
+		assert: template asSmalltalkSnippet
 		equals: 'out nextPutAll: ''<main>''.
  STT yield: #showJob .
 out nextPutAll: ''</main>''.'
@@ -789,7 +789,7 @@ STTemplateTest >> testRenderSimpleNamedYieldSnippetWithoutDisplayToken [
 	partials := { (#showJob -> '<st= 42 >' asSTTemplate) } asDictionary.
 
 	self
-		assert: (template asSmalltalkSnippetWithPartials: partials)
+		assert: template asSmalltalkSnippet
 		equals: ' STT yield: #showJob .'
 ]
 
@@ -813,7 +813,7 @@ STTemplateTest >> testRenderTriplyComposedSnippetWithNamedYield [
 			             asSTTemplate) } asDictionary.
 
 	self
-		assert: (template asSmalltalkSnippetWithPartials: partials)
+		assert: template asSmalltalkSnippet
 		equals: 'out nextPutAll: ''<main>''.
  STT yield: #showJob .
 out nextPutAll: ''</main>''.'

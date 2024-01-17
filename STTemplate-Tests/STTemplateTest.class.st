@@ -267,6 +267,21 @@ STTemplateTest >> testComposedWithNamedPartialsWithContext [
 ]
 
 { #category : #tests }
+STTemplateTest >> testComposedWithPartial [
+
+	| rendered partial |
+	partial := '<p>The answer is <st= 40+2></p>' asSTTemplate.
+
+	rendered := '<h1>Contents</h1><div><st= STT yield ></div>'
+		            sttRenderOn: nil
+		            partial: partial.
+
+	self
+		assert: rendered
+		equals: '<h1>Contents</h1><div><p>The answer is 42</p></div>'
+]
+
+{ #category : #tests }
 STTemplateTest >> testComposedWithPartialsWithCustomizedContext [
 
 	| rendered partials |

@@ -34,3 +34,13 @@ STT class >> yield: aNamedPartialToYield on: aContext [
 	result := partial renderOn: aContext partials: renderingContext partials.
 	outStream nextPutAll: result
 ]
+
+{ #category : #public }
+STT class >> yieldPartial: anSTTemplate on: aContext [
+
+	| renderingContext outStream result |
+	renderingContext := STTCurrentRenderingContext value.
+	outStream := STTCurrentRenderingStream value.
+	result := anSTTemplate renderOn: aContext.
+	outStream nextPutAll: result
+]

@@ -6,6 +6,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'jobs',
+		'description',
 		'thing',
 		'jobId',
 		'answer',
@@ -26,6 +27,18 @@ STTDummyJobModel >> answer [
 STTDummyJobModel >> answer: aValue [
 
 	answer := aValue
+]
+
+{ #category : #accessing }
+STTDummyJobModel >> description [
+
+	^ description
+]
+
+{ #category : #accessing }
+STTDummyJobModel >> description: anObject [
+
+	description := anObject
 ]
 
 { #category : #accessing }
@@ -75,6 +88,12 @@ STTDummyJobModel >> jobId: aString [
 STTDummyJobModel >> jobs [
 
 	^ jobs
+]
+
+{ #category : #accessing }
+STTDummyJobModel >> jobs: someJobs [
+
+	jobs := someJobs
 ]
 
 { #category : #accessing }

@@ -1,5 +1,5 @@
 "
-I'm an error specific of the SSTTemplate processing.
+I'm an error specific of the `SSTTemplate` processing.
 "
 Class {
 	#name : #STTError,

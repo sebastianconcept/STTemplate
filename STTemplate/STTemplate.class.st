@@ -1,17 +1,17 @@
 "
 I'm the Smalltalk template class.
 
-I can run Smalltalk code found between the opening (`<st`) and closing (`>`) tags when present in my content.
+I can run Smalltalk code found between the opening (`<st`) and closing (`>`) tags in my content.
 
 There are two ways to have Smalltalk running from my instances:
 ### 1. Displayed
-Analogous to a `printIt`
+When the template code has the 'display token' (here an `=`), behaves analogous to a `printIt`
 ```
 '<p><st= ''Hello '', self ></p>' sttRenderOn: 'STT'.
 ""'<p>Hello STT</p>'""
 ```.
 ### 2. Evaluated
-Analogous to a `doIt`
+When there is no 'display token', just evaluates, analogous to a `doIt`
 ```
 '<p>Hello STT<st 40+2 ></p>' sttRenderOn: 'STT'.
 ""'<p>Hello STT</p>'""
@@ -179,45 +179,83 @@ STTemplate class >> reset [
 ]
 
 { #category : #actions }
+STTemplate >> addCrIfNeededOn: aSmalltalkSourceStream [
+
+	"Adds a Character cr if the given aSmalltalkSourceStream looks like a Smalltalk end of line."
+
+	aSmalltalkSourceStream contents trim ifEmpty: [ ^ self ].
+
+	aSmalltalkSourceStream contents trim last = $. ifTrue: [ 
+		aSmalltalkSourceStream cr ]
+]
+
+{ #category : #actions }
 STTemplate >> addLineTerminationFor: smalltalkExpression on: rendered [
 
-	"Adds a dot and a line termination character if the given 
-	Smalltalk expression does not end with one of the exceptional symbols."
+	"Adds a dot as line termination character if the given 
+	Smalltalk expression does not end with one of the exceptional symbols.
+	
+	Kind of always needed except when it's an expression that opens parenthesis or a closure.
+	Iterators are a typical example."
 
 	(smalltalkExpression endsWithAnyOf:
 		 self class exceptionalTerminationSymbols) ifFalse: [ 
-		rendered
-			nextPut: $.;
-			cr ]
+		rendered nextPut: $. ]
 ]
 
 { #category : #converting }
-STTemplate >> asSmalltalkCode [
+STTemplate >> asSmalltalkSnippet [
 
-	"Returns the Smalltalk source code corresponding to the receiver."
+	"Returns the Smalltalk source code corresponding to rendering the receiver
+	in the out stream. Does not wrap that code with any kind of 
+	preamble. It is asSmalltalkSource the one that does that.
+	
+	Assumes the 'out' WriteStream is already available in context and also
+	do not do anything special to make the method return."
 
 	| rendered src openingTag closingTag displayToken |
 	openingTag := self class options at: #openingTag.
 	closingTag := self class options at: #closingTag.
 	displayToken := self class options at: #displayToken.
 
-	rendered := self newOutStream.
+	rendered := String new writeStream.
 	src := source readStream.
-	
+
 	"Process every block writing the output 
-	in the rendered stream until all the source gets read."
+	in the rendered stream until all the source of the template gets read."
 	[ src atEnd ] whileFalse: [ 
 		self
-			renderOutputFor: src
+			renderSourceFor: src
 			on: rendered
 			openingTag: openingTag
 			closingTag: closingTag
 			displayToken: displayToken ].
 
+	^ rendered contents
+]
+
+{ #category : #converting }
+STTemplate >> asSmalltalkSource [
+
+	"Returns the Smalltalk source code corresponding to a method that will render the receiver."
+
+	| rendered src openingTag closingTag displayToken |
+	openingTag := self class options at: #openingTag.
+	closingTag := self class options at: #closingTag.
+	displayToken := self class options at: #displayToken.
+
+	rendered := self newSourceStream.
+	src := source readStream.
+
+	rendered
+		cr;
+		nextPutAll: self asSmalltalkSnippet.
+
 	^ rendered
 		  cr;
-		  nextPutAll: '^ out contents';
-		  cr;
+		  "The closing bracket at the end corresponds to 
+			the end of the during closure for STTCurrentRenderingStream."
+		  nextPutAll: '^ out contents ]';
 		  contents
 ]
 
@@ -225,7 +263,7 @@ STTemplate >> asSmalltalkCode [
 STTemplate >> basicCompile [
 
 	^ Smalltalk compiler
-		  source: self asSmalltalkCode;
+		  source: self asSmalltalkSource;
 		  context: nil;
 		  failBlock: [ ^ nil ];
 		  noPattern: true;
@@ -238,7 +276,7 @@ STTemplate >> compile [
 
 	"Answers the compiled method resulting for this template.
 	Catches syntax error notifications to signal STTemplateCompilationError 
-	so applications can define how to handle."
+	so applications can define how to handle that issue."
 
 	^ [ self basicCompile ]
 		  on: SyntaxErrorNotification
@@ -249,6 +287,25 @@ STTemplate >> compile [
 STTemplate >> compiledMethod [
 
 	^ compiledMethod ifNil: [ self initializeCompiledMethod ]
+]
+
+{ #category : #accessing }
+STTemplate >> getPartialNameFrom: smalltalkExpression [
+
+	"Answer the name of the partial in the given smalltalkExpression.
+
+	A template of a possible partial named 'showJobs' would look like this:
+	
+	<st= STT yield: #showJob >
+	"
+
+	| src |
+	self deprecated: 'not needed anymore'.
+	src := smalltalkExpression readStream.
+	src upTo: $#.
+
+	^ String streamContents: [ :s | 
+		  [ src peek isAlphaNumeric ] whileTrue: [ s nextPut: src next ] ]
 ]
 
 { #category : #testing }
@@ -262,6 +319,12 @@ STTemplate >> hasDisplayToken: token at: anInteger [
 		             position: anInteger - 1;
 		             next: token size.
 	^ extracted = token
+]
+
+{ #category : #testing }
+STTemplate >> hasNamedYield: aSmalltalkExpression [
+
+	^ (aSmalltalkExpression indexOfSubCollection: 'yield:') > 0
 ]
 
 { #category : #initialization }
@@ -289,14 +352,24 @@ STTemplate >> isToBeDisplayed: sourceStream displayToken: displayToken [
 		   startingAt: 1) > 0
 ]
 
+{ #category : #testing }
+STTemplate >> isUnnamedYield: aSmalltalkExpression [
+
+	^ (aSmalltalkExpression indexOfSubCollection: 'yield') > 0 and: [ 
+		  (aSmalltalkExpression indexOfSubCollection: 'yield:') isZero ]
+]
+
 { #category : #actions }
-STTemplate >> newOutStream [
+STTemplate >> newSourceStream [
 
 	^ String new writeStream
 		  nextPutAll: '| out result |';
 		  cr;
 		  nextPutAll: 'out := String new writeStream.';
-		  cr
+		  cr;
+		  nextPutAll: 'STTCurrentRenderingStream value: out during: [';
+		  cr;
+		  yourself
 ]
 
 { #category : #actions }
@@ -306,53 +379,147 @@ STTemplate >> nextSmalltalkExpressionIn: src using: closingTag [
 ]
 
 { #category : #actions }
-STTemplate >> renderOn: anObject [
+STTemplate >> renderNamedYieldsFrom: smalltalkExpression on: rendered [
 
-	^ self compiledMethod valueWithReceiver: anObject arguments: #(  )
+	| partialRenderingSnippet |
+	partialRenderingSnippet := String streamContents: [ :str | 
+		                           str nextPutAll: smalltalkExpression.
+		                           self
+			                           addLineTerminationFor:
+			                           smalltalkExpression
+			                           on: str ].
+	self addCrIfNeededOn: rendered.
+	^ rendered nextPutAll: partialRenderingSnippet
 ]
 
 { #category : #actions }
-STTemplate >> renderOutputFor: src on: rendered openingTag: openingTag closingTag: closingTag displayToken: displayToken [
+STTemplate >> renderOn: anObject [
 
-	| prelude smalltalkExpression |
-	prelude := (src upToAll: openingTag) trimmed.
+	"Answer the result of rendering the receiver using anObject as template context."
+
+	^ self renderOn: anObject partials: Dictionary new
+]
+
+{ #category : #actions }
+STTemplate >> renderOn: anObject partial: partial [
+
+	"Answer the result of rendering the receiver using anObject as template context
+	and the given partial.
+	The partials are nothing but sub-templates that have also access to the template context.
+	The STTCurrentRenderingContext dynamic variable and STTCurrentRenderingContext gives them
+	access to complete its rendering process."
+
+	^ self
+		  renderOn: anObject
+		  partials: { (#_yield -> partial) } asDictionary
+]
+
+{ #category : #actions }
+STTemplate >> renderOn: anObject partials: partialsDictionarish [
+
+	"Answer the result of rendering the receiver using anObject as template context
+	and the given partials.
+	The partials are nothing but sub-templates that have also access to the template context.
+	The STTCurrentRenderingContext dynamic variable and STTCurrentRenderingContext gives them
+	access to complete its rendering process."
+
+	^ STTCurrentRenderingContext value
+		  ifNil: [ 
+			  | renderingContext |
+			  renderingContext := STTRenderingContext
+				                      on: anObject
+				                      partials: partialsDictionarish.
+			  STTCurrentRenderingContext
+				  value: renderingContext
+				  during: [ 
+				  self compiledMethod valueWithReceiver: anObject arguments: #(  ) ] ]
+		  ifNotNil: [ 
+		  self compiledMethod valueWithReceiver: anObject arguments: #(  ) ]
+]
+
+{ #category : #actions }
+STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTag: closingTag displayToken: displayToken [
+
+	"Answers the Smalltalk source code for the method that, once compiled and 
+	evaluated on a template context, returns its rendering."
+	
+	| prelude smalltalkExpression forDisplaying renderedSource displayResult |
+	
+	forDisplaying := false.
+	prelude := src upToAll: openingTag.
 	prelude ifNotEmpty: [ 
+		self addCrIfNeededOn: rendered.
 		"Adds any unrelated content previous to any block."
 		rendered
 			nextPutAll: 'out nextPutAll: ';
 			nextPut: $';
 			nextPutAll: prelude;
 			nextPut: $'.
-		self addLineTerminationFor: '' on: rendered.
-		rendered cr ].
-	src atEnd ifFalse: [ 
-		(self isToBeDisplayed: src displayToken: displayToken)
-			ifTrue: [ 
-				"Consume the display token."
-				src upToAll: displayToken.
-				"And get the Smalltalk expression."
-				smalltalkExpression := self
-					                       nextSmalltalkExpressionIn: src
-					                       using: closingTag.
-				rendered
-					cr;
-					nextPutAll: 'result := [ ';
-					nextPutAll: smalltalkExpression;
-					nextPutAll: ' ] value'.
-				"Keep the result of evaluating the expression in result."
-				self addLineTerminationFor: smalltalkExpression on: rendered.
+		self addLineTerminationFor: '' on: rendered ].
+	src atEnd ifFalse: [ "There is source to process still so, let's see.
+		Maybe is evaluation, maybe is about printing its result."
+		(self isToBeDisplayed: src displayToken: displayToken) ifTrue: [ "Consume the display token."
+			src upToAll: displayToken.
+			forDisplaying := true ] ].
 
-				"Add its string representation to the out stream."
-				rendered
-					nextPutAll: 'out nextPutAll: result asString.';
-					cr ]
-			ifFalse: [ 
-				smalltalkExpression := self
-					                       nextSmalltalkExpressionIn: src
-					                       using: closingTag.
-				rendered nextPutAll: smalltalkExpression.
-				"Ensure a line delimiter for it."
-				self addLineTerminationFor: smalltalkExpression on: rendered ] ]
+	"And get the Smalltalk expression."
+	smalltalkExpression := self
+		                       nextSmalltalkExpressionIn: src
+		                       using: closingTag.
+
+	"The expression could be about rendering a partial here.
+	Is that the case? Are there named partials to yield?"
+	(self hasNamedYield: smalltalkExpression) ifTrue: [ 
+		^ self renderNamedYieldsFrom: smalltalkExpression on: rendered ].
+
+	"Or is it an unnamed partial to yield?"
+	(self isUnnamedYield: smalltalkExpression) ifTrue: [ 
+		^ self renderYieldOn: rendered ].
+
+	smalltalkExpression trim ifEmpty: [ ^ self ].
+
+	"Write the sentence to doIt or displayIt."
+	renderedSource := forDisplaying
+		                  ifFalse: [ "Add the code directly without closure
+											and without using its answer."
+			                  String streamContents: [ :str | 
+				                  str nextPutAll: smalltalkExpression.
+				                  self
+					                  addLineTerminationFor: smalltalkExpression
+					                  on: str ] ]
+		                  ifTrue: [ "Evaluate the closure and use its answer asStirng"
+			                  String streamContents: [ :str | 
+				                  displayResult := 'out nextPutAll: result asString'.
+				                  str
+					                  nextPutAll:
+						                  ('result := [ {1} ] value.' format:
+								                   { smalltalkExpression });
+					                  cr;
+					                  nextPutAll: displayResult.
+				                  self
+					                  addLineTerminationFor: displayResult
+					                  on: str ] ].
+
+	self addCrIfNeededOn: rendered.
+	^ rendered nextPutAll: renderedSource
+]
+
+{ #category : #actions }
+STTemplate >> renderYieldOn: rendered [
+
+	| partialRenderingSnippet smalltalkExpression |
+	"Preserves the context in which the partial should be rendered
+	and makes it available by grabbing it from the expected private selector key."
+	smalltalkExpression := 'STT yield: #_yield on: self'.
+
+	partialRenderingSnippet := String streamContents: [ :str | 
+		                           str nextPutAll: smalltalkExpression.
+		                           self
+			                           addLineTerminationFor:
+			                           smalltalkExpression
+			                           on: str ].
+	self addCrIfNeededOn: rendered.
+	^ rendered nextPutAll: partialRenderingSnippet
 ]
 
 { #category : #actions }

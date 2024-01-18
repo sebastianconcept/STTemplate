@@ -890,6 +890,15 @@ out nextPutAll: ''
 ]
 
 { #category : #tests }
+STTemplateTest >> testTemplateWithSingleQuote [
+
+	| template |
+	template := '<p>That''s it</p>' asSTTemplate.
+
+	self assert: template render equals: '<p>That''s it</p>'
+]
+
+{ #category : #tests }
 STTemplateTest >> testValueFromTempVar [
 
 	| source |

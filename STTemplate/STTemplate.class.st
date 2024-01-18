@@ -379,6 +379,12 @@ STTemplate >> nextSmalltalkExpressionIn: src using: closingTag [
 ]
 
 { #category : #actions }
+STTemplate >> render [
+
+	^ self renderOn: nil
+]
+
+{ #category : #actions }
 STTemplate >> renderNamedYieldsFrom: smalltalkExpression on: rendered [
 
 	| partialRenderingSnippet |

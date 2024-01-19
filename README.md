@@ -3,7 +3,7 @@
 Smalltalk template library
 
 [![Release](https://img.shields.io/github/v/tag/sebastianconcept/STTemplate?label=release)](https://github.com/sebastianconcept/STTemplate/releases)
-![Tests](https://img.shields.io/badge/tests-35-green)
+![Tests](https://img.shields.io/badge/tests-37-green)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE.txt)
 
 ## Features
@@ -30,7 +30,7 @@ ___
 "By default it installs 'Core'"
 Metacello new
   baseline: 'STTemplate';
-  repository: 'github://sebastianconcept/STTemplate:v0.0.1';
+  repository: 'github://sebastianconcept/STTemplate:v0.0.3';
   load.
 
 "Optionally use `load: #('Core' 'Tests')`" 
@@ -39,7 +39,7 @@ Metacello new
 Or as dependency in your `Baseline`
 
 ```smalltalk
-spec baseline: 'STTemplate' with: [ spec repository: 'github://sebastianconcept/STTemplate:v0.0.1' ]
+spec baseline: 'STTemplate' with: [ spec repository: 'github://sebastianconcept/STTemplate:v0.0.3' ]
 ```
 
 ## Description

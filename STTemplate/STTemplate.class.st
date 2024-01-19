@@ -379,6 +379,12 @@ STTemplate >> nextSmalltalkExpressionIn: src using: closingTag [
 ]
 
 { #category : #actions }
+STTemplate >> render [
+
+	^ self renderOn: nil
+]
+
+{ #category : #actions }
 STTemplate >> renderNamedYieldsFrom: smalltalkExpression on: rendered [
 
 	| partialRenderingSnippet |
@@ -442,9 +448,8 @@ STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTa
 
 	"Answers the Smalltalk source code for the method that, once compiled and 
 	evaluated on a template context, returns its rendering."
-	
+
 	| prelude smalltalkExpression forDisplaying renderedSource displayResult |
-	
 	forDisplaying := false.
 	prelude := src upToAll: openingTag.
 	prelude ifNotEmpty: [ 
@@ -453,7 +458,7 @@ STTemplate >> renderSourceFor: src on: rendered openingTag: openingTag closingTa
 		rendered
 			nextPutAll: 'out nextPutAll: ';
 			nextPut: $';
-			nextPutAll: prelude;
+			nextPutAll: prelude asSingleQuoteEscaped;
 			nextPut: $'.
 		self addLineTerminationFor: '' on: rendered ].
 	src atEnd ifFalse: [ "There is source to process still so, let's see.

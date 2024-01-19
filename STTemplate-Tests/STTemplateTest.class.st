@@ -599,6 +599,21 @@ STTemplateTest >> testNestedDisplayValueFromCustomAttribute [
 ]
 
 { #category : #tests }
+STTemplateTest >> testPartialWithSingleQuote [
+
+	| template partials |
+	partials := { (#withStringToEscapeQuote
+	             -> '<p>That''s also it!</p>' asSTTemplate) }
+		            asDictionary.
+	template := '<div><p>That''s it and</p><st STT yield: #withStringToEscapeQuote ></div>'
+		            asSTTemplate.
+
+	self
+		assert: (template renderOn: nil partials: partials)
+		equals: '<div><p>That''s it and</p><p>That''s also it!</p></div>'
+]
+
+{ #category : #tests }
 STTemplateTest >> testRenderComposedRenderedWithoutContext [
 
 	| templateContext job1 job2 partials template result |
@@ -680,7 +695,7 @@ STTemplateTest >> testRenderComposedSnippetWithNamedYield [
 { #category : #tests }
 STTemplateTest >> testRenderComposedSnippetWithoutContext [
 
-	| model job1 job2 partials template result rendered |
+	| model job1 job2 partials template |
 	model := STTDummyJobModel new.
 	job1 := STTDummyJobModel new
 		        description: 'Job 1';
@@ -711,8 +726,7 @@ STTemplateTest >> testRenderComposedSnippetWithoutContext [
 </ul>
 ' asSTTemplate.
 
-template.
-
+	template
 ]
 
 { #category : #tests }
@@ -887,6 +901,15 @@ out nextPutAll: result asString.
 out nextPutAll: ''
 		</span>''.
 ^ out contents ]'
+]
+
+{ #category : #tests }
+STTemplateTest >> testTemplateWithSingleQuote [
+
+	| template |
+	template := '<p>That''s it</p>' asSTTemplate.
+
+	self assert: template render equals: '<p>That''s it</p>'
 ]
 
 { #category : #tests }

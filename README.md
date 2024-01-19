@@ -1,6 +1,6 @@
 # STTemplate
 
-Smalltalk template library
+Templates with the Power of Smalltalk
 
 [![Release](https://img.shields.io/github/v/tag/sebastianconcept/STTemplate?label=release)](https://github.com/sebastianconcept/STTemplate/releases)
 ![Tests](https://img.shields.io/badge/tests-37-green)

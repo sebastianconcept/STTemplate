@@ -9,6 +9,22 @@ String >> asSTTemplate [
 ]
 
 { #category : #'*STTemplate' }
+String >> asSingleQuoteEscaped [
+
+	"Answer a copy of the receiver that has an extra 
+	single quote for every one found in the origial."
+
+	| current |
+	^ self class streamContents: [ :out | 
+		  self readStreamDo: [ :in | 
+			  [ in atEnd ] whileFalse: [ 
+				  current := in next.
+				  current = $'
+					  ifTrue: [ out nextPutAll: '''''' ]
+					  ifFalse: [ out nextPut: current ] ] ] ]
+]
+
+{ #category : #'*STTemplate' }
 String >> sttRenderOn: anObject [
 
 	"Answers the result of rendering an `STTemplate`

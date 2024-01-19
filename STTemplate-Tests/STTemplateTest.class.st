@@ -599,6 +599,15 @@ STTemplateTest >> testNestedDisplayValueFromCustomAttribute [
 ]
 
 { #category : #tests }
+STTemplateTest >> testPartialWithSingleQuote [
+
+	| template |
+	template := '<p>That''s it</p>' asSTTemplate.
+
+	self assert: template render equals: '<p>That''s it</p>'
+]
+
+{ #category : #tests }
 STTemplateTest >> testRenderComposedRenderedWithoutContext [
 
 	| templateContext job1 job2 partials template result |

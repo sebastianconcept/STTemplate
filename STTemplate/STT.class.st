@@ -8,6 +8,25 @@ Class {
 }
 
 { #category : #public }
+STT class >> getTemplateFrom: aNamedPartialToYield in: partialsDictionaryish [
+
+	| parts selector reminder missing |
+	parts := aNamedPartialToYield substrings: '/'.
+	missing := [ 
+	           STTError signal:
+		           ('Partial missing at: {1}' format:
+			            { aNamedPartialToYield asString }) ].
+	parts size > 1 ifTrue: [ 
+		selector := parts first.
+		reminder := '/' join: parts allButFirst.
+		^ self
+			  getTemplateFrom: reminder
+			  in: (partialsDictionaryish at: selector ifAbsent: missing) ].
+
+	^ partialsDictionaryish at: parts first ifAbsent: missing
+]
+
+{ #category : #public }
 STT class >> yield: aNamedPartialToYield [
 
 	| renderingContext |
@@ -22,16 +41,15 @@ STT class >> yield: aNamedPartialToYield [
 { #category : #public }
 STT class >> yield: aNamedPartialToYield on: aContext [
 
-	| renderingContext partial outStream result |
+	| renderingContext template outStream result |
 	renderingContext := STTCurrentRenderingContext value.
-	partial := renderingContext partials
-		           at: aNamedPartialToYield
-		           ifAbsent: [ 
-			           STTError signal:
-				           ('Partial missing: {1}' format:
-					            { aNamedPartialToYield asString }) ].
+	template := self
+		            getTemplateFrom: aNamedPartialToYield
+		            in: renderingContext partials.
 	outStream := STTCurrentRenderingStream value.
-	result := partial renderOn: aContext partials: renderingContext partials.
+	result := template
+		          renderOn: aContext
+		          partials: renderingContext partials.
 	outStream nextPutAll: result
 ]
 

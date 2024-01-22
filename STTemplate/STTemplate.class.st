@@ -415,6 +415,7 @@ STTemplate >> renderOn: anObject partial: partial [
 	The STTCurrentRenderingContext dynamic variable and STTCurrentRenderingContext gives them
 	access to complete its rendering process."
 
+	self deprecated: 'not used'.
 	^ self
 		  renderOn: anObject
 		  partials: { (#_yield -> partial) } asDictionary

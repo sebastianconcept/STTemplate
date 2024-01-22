@@ -932,3 +932,28 @@ STTemplateTest >> testWithoutCode [
 
 	self assert: ('<p>Hello</p>' sttRenderOn: nil) equals: '<p>Hello</p>'
 ]
+
+{ #category : #tests }
+STTemplateTest >> testYieldDeeperPartial [
+
+	| template partials alertsTemplate rendered expectedRendering |
+	template := '
+<div><st= STT yield: ''shared/alerts.html'' on: self><div>
+<st= STT yield: #showJob >
+' asSTTemplate.
+
+	alertsTemplate := '<div><st= self ></div><ul><li>Alerting</li></ul>'
+		                  asSTTemplate.
+	partials := { 
+		            (#shared
+		             -> { ('alerts.html' -> alertsTemplate) } asDictionary).
+		            (#showJob -> '<p><st= 42 ></p>' asSTTemplate) }
+		            asDictionary.
+
+	expectedRendering := '
+<div><div>42</div><ul><li>Alerting</li></ul><div>
+<p>42</p>
+'.
+	rendered := template renderOn: 42 partials: partials.
+	self assert: rendered equals: expectedRendering
+]

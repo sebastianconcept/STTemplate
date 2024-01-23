@@ -1,5 +1,11 @@
 Jan 21, 2024
 ===================================
+- Adjusted the compilation so the templates can access instVars of the context directly as if they where a method of that object (which dinamically they are).
+- This works `<div><st= firstName, ' ', answer asString></div>`
+- `testCanAccessInstVarsOfTheContext` and `testCanAccessInstVarsOfTheContextFromAPartial` are coverage.
+
+Jan 21, 2024
+===================================
 - Adjusted `STT yield:on:` to allow rendering cases like this one `<st= STT yield: 'shared/alerts.html' on: self alerts>` where `shared/alerts.html` has alerts deeper in the partials sent in the rendering context.
 
 Jan 8, 2024

@@ -29,13 +29,6 @@ STTDummyJobModel >> answer: aValue [
 	answer := aValue
 ]
 
-{ #category : #'as yet unclassified' }
-STTDummyJobModel >> cosa [
-	| part |
-part := firstName capitalized.
-^ '{1} {2}' format: { (40+2) asString. part }  
-]
-
 { #category : #accessing }
 STTDummyJobModel >> description [
 

@@ -1,0 +1,13 @@
+SmalltalkCISpec {
+  #loading : [
+    SCIMetacelloLoadSpec {
+      #baseline : 'STTemplate',
+      #directory : '',
+      #load : [ 'Core',
+        'Tests'
+      ],
+      #platforms : [ #pharo
+      ]
+    }
+  ]
+}

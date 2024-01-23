@@ -1,3 +1,9 @@
+Jan 23, 2024
+===================================
+- Added smalltalkCI
+- Added Codecov
+- Added which Pharo versions are supported (currently only Pharo10)
+  
 Jan 21, 2024
 ===================================
 - Adjusted the compilation so the templates can access instVars of the context directly as if they where a method of that object (which dinamically they are).

@@ -2,9 +2,14 @@
 
 Templates with the Power of Smalltalk
 
-[![Release](https://img.shields.io/github/v/tag/sebastianconcept/STTemplate?label=release)](https://github.com/sebastianconcept/STTemplate/releases)
-![Tests](https://img.shields.io/badge/tests-37-green)
+[![Unit Tests](https://github.com/sebastianconcept/STTemplate/actions/workflows/build.yml/badge.svg)](https://github.com/sebastianconcept/STTemplate/actions/workflows/build.yml)
+![Tests](https://img.shields.io/badge/tests-40-green)
+[![Coverage Status](https://codecov.io/github/sebastianconcept/STTemplate/coverage.svg?branch=main)](https://codecov.io/gh/sebastianconcept/STTemplate/branch/master)
+
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE.txt)
+[![Release](https://img.shields.io/github/v/tag/sebastianconcept/STTemplate?label=release)](https://github.com/sebastianconcept/STTemplate/releases)
+
+[![Pharo 10](https://img.shields.io/badge/Pharo-10-%23aac9ff.svg)](https://pharo.org/download)
 
 ## Features
 

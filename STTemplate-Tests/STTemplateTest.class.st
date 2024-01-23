@@ -213,6 +213,68 @@ STTemplateTest >> tearDown [
 ]
 
 { #category : #tests }
+STTemplateTest >> testCanAccessInstVarsOfTheContext [
+
+	| template rendered expectedRendering templateContext |
+	templateContext := STTDummyJobModel new
+		                   answer: 42;
+		                   firstName: 'Questioner';
+		                   yourself.
+	template := '<div>
+<section><st= firstName, '' '', answer asString></section>
+</div>' asSTTemplate.
+
+	expectedRendering := '<div>
+<section>Questioner 42</section>
+</div>'.
+	rendered := template renderOn: templateContext.
+	self assert: rendered equals: expectedRendering
+]
+
+{ #category : #tests }
+STTemplateTest >> testCanAccessInstVarsOfTheContextFromAPartial [
+
+	| template partials alertsTemplate rendered expectedRendering templateContext |
+	templateContext := STTDummyJobModel new
+		                   answer: 42;
+		                   firstName: 'Questioner';
+		                   yourself.
+	template := '<div>
+<section><st STT yield: ''shared/alerts.html'' on: self></section>
+<section><st STT yield: #showJob on: self></section>
+</div>' asSTTemplate.
+
+	"With message send"
+	alertsTemplate := '<div>Beware <st= self firstName></div><ul><li>Alert 1</li></ul>'
+		                  asSTTemplate.
+	partials := { 
+		            (#shared
+		             -> { ('alerts.html' -> alertsTemplate) } asDictionary).
+		            (#showJob -> '<p><st= 42 ></p>' asSTTemplate) }
+		            asDictionary.
+
+	expectedRendering := '<div>
+<section><div>Beware Questioner</div><ul><li>Alert 1</li></ul></section>
+<section><p>42</p></section>
+</div>'.
+	rendered := template renderOn: templateContext partials: partials.
+	self assert: rendered equals: expectedRendering.
+
+	"With direct access to the instVar"
+	alertsTemplate := '<div>Beware <st= firstName></div><ul><li>Alert 1</li></ul>'
+		                  asSTTemplate.
+	partials := { 
+		            (#shared
+		             -> { ('alerts.html' -> alertsTemplate) } asDictionary).
+		            (#showJob -> '<p><st= 42 ></p>' asSTTemplate) }
+		            asDictionary.		
+	rendered := template renderOn: templateContext partials: partials.
+	self assert: rendered equals: expectedRendering.
+	
+
+]
+
+{ #category : #tests }
 STTemplateTest >> testClosureWithChildDisplayingValueUsingCustomTags [
 
 	| stt rendered |
@@ -532,9 +594,10 @@ STTemplateTest >> testNestedClosureSource [
 			</ul>
 		<st ] value>'.
 
-	shouldRender := '| out result |
+	shouldRender := '_anonymousRenderer
+| out result |
 out := String new writeStream.
-STTCurrentRenderingStream value: out during: [
+^ STTCurrentRenderingStream value: out during: [
 
 out nextPutAll: ''
 		''.
@@ -563,7 +626,7 @@ out nextPutAll: ''
 			</ul>
 		''.
  ] value.
-^ out contents ]'.
+out contents ]'.
 	self assert: stt asSmalltalkSource equals: shouldRender
 ]
 
@@ -867,13 +930,14 @@ STTemplateTest >> testSourceForEnclosingNoCodeBeforeElement [
 
 	| template |
 	template := '<st 6+5 ><p>Hello</p>' asSTTemplate.
-	self assert: template asSmalltalkSource equals: '| out result |
+	self assert: template asSmalltalkSource equals: '_anonymousRenderer
+| out result |
 out := String new writeStream.
-STTCurrentRenderingStream value: out during: [
+^ STTCurrentRenderingStream value: out during: [
 
  6+5 .
 out nextPutAll: ''<p>Hello</p>''.
-^ out contents ]'
+out contents ]'
 ]
 
 { #category : #tests }
@@ -888,9 +952,10 @@ STTemplateTest >> testSourceForValueFromTempVar [
 
 	self
 		assert: source asSTTemplate asSmalltalkSource
-		equals: '| out result |
+		equals: '_anonymousRenderer
+| out result |
 out := String new writeStream.
-STTCurrentRenderingStream value: out during: [
+^ STTCurrentRenderingStream value: out during: [
 
 out nextPutAll: ''<p>Hello</p><span>
 		''.
@@ -900,7 +965,7 @@ result := [  |answer|
 out nextPutAll: result asString.
 out nextPutAll: ''
 		</span>''.
-^ out contents ]'
+out contents ]'
 ]
 
 { #category : #tests }

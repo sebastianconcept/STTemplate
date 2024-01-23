@@ -255,7 +255,7 @@ STTemplate >> asSmalltalkSource [
 		  cr;
 		  "The closing bracket at the end corresponds to 
 			the end of the during closure for STTCurrentRenderingStream."
-		  nextPutAll: '^ out contents ]';
+		  nextPutAll: 'out contents ]';
 		  contents
 ]
 
@@ -272,13 +272,36 @@ STTemplate >> basicCompile [
 ]
 
 { #category : #actions }
+STTemplate >> basicCompileOn: anObject [
+
+	^ anObject class compiler
+		  source: self asSmalltalkSource;
+		  failBlock: [ ^ nil ];
+		  context: nil;
+		  compile
+]
+
+{ #category : #actions }
 STTemplate >> compile [
 
 	"Answers the compiled method resulting for this template.
 	Catches syntax error notifications to signal STTemplateCompilationError 
 	so applications can define how to handle that issue."
 
+	self deprecated: 'use compileOn: anObject'.
 	^ [ self basicCompile ]
+		  on: SyntaxErrorNotification
+		  do: [ :x | STTemplateCompilationError signal: x messageText ]
+]
+
+{ #category : #actions }
+STTemplate >> compileOn: anObject [
+
+	"Answers the compiled method resulting for this template.
+	Catches syntax error notifications to signal STTemplateCompilationError 
+	so applications can define how to handle that issue."
+
+	^ [ self basicCompileOn: anObject ]
 		  on: SyntaxErrorNotification
 		  do: [ :x | STTemplateCompilationError signal: x messageText ]
 ]
@@ -286,7 +309,14 @@ STTemplate >> compile [
 { #category : #accessing }
 STTemplate >> compiledMethod [
 
+	self deprecated: 'use compiledMethodOn:'.
 	^ compiledMethod ifNil: [ self initializeCompiledMethod ]
+]
+
+{ #category : #accessing }
+STTemplate >> compiledMethodOn: anObject [
+
+	^ compiledMethod ifNil: [ self initializeCompiledMethodOn: anObject ]
 ]
 
 { #category : #accessing }
@@ -330,7 +360,14 @@ STTemplate >> hasNamedYield: aSmalltalkExpression [
 { #category : #initialization }
 STTemplate >> initializeCompiledMethod [
 
+	self deprecated: 'use initializeCompiledMethodOn:'.
 	^ compiledMethod := self compile
+]
+
+{ #category : #initialization }
+STTemplate >> initializeCompiledMethodOn: anObject [
+
+	^ compiledMethod := self compileOn: anObject
 ]
 
 { #category : #initialization }
@@ -363,11 +400,13 @@ STTemplate >> isUnnamedYield: aSmalltalkExpression [
 STTemplate >> newSourceStream [
 
 	^ String new writeStream
+		  nextPutAll: '_anonymousRenderer';
+		  cr;
 		  nextPutAll: '| out result |';
 		  cr;
 		  nextPutAll: 'out := String new writeStream.';
 		  cr;
-		  nextPutAll: 'STTCurrentRenderingStream value: out during: [';
+		  nextPutAll: '^ STTCurrentRenderingStream value: out during: [';
 		  cr;
 		  yourself
 ]
@@ -436,12 +475,14 @@ STTemplate >> renderOn: anObject partials: partialsDictionarish [
 			  renderingContext := STTRenderingContext
 				                      on: anObject
 				                      partials: partialsDictionarish.
-			  STTCurrentRenderingContext
-				  value: renderingContext
-				  during: [ 
-				  self compiledMethod valueWithReceiver: anObject arguments: #(  ) ] ]
+			  STTCurrentRenderingContext value: renderingContext during: [ 
+				  (self compiledMethodOn: anObject)
+					  valueWithReceiver: anObject
+					  arguments: #(  ) ] ]
 		  ifNotNil: [ 
-		  self compiledMethod valueWithReceiver: anObject arguments: #(  ) ]
+			  (self compiledMethodOn: anObject)
+				  valueWithReceiver: anObject
+				  arguments: #(  ) ]
 ]
 
 { #category : #actions }

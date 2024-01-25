@@ -11,6 +11,39 @@ Templates with the Power of Smalltalk
 
 [![Pharo 10](https://img.shields.io/badge/Pharo-10-%23aac9ff.svg)](https://pharo.org/download)
 
+## Description
+
+`STTemplate` is a Smalltalk template class.
+
+It can run Smalltalk code found between the opening (`<st`) and closing (`>`) tags when present in in the string that is the source of an STTemplate.
+
+There are two ways to have Smalltalk code executed from `STTemplate` instances:
+
+### 1. Displayed
+
+Analogous to a `printIt` (note the `=` after the opening tag `<st`):
+
+```smalltalk
+'<p><st= ''Hello '', self ></p>' sttRenderOn: 'STT'.
+"'<p>Hello STT</p>'"
+```
+
+### 2. Evaluated
+
+Analogous to a `doIt` (note the lack of `=` after the opening tag `<st`):
+
+```smalltalk
+'<p>Hello STT<st 40+2 ></p>' sttRenderOn: 'STT'.
+"'<p>Hello STT</p>'"
+
+'<p>Hello STT<st self crShow: ''Greetings from an STT closure!'' ></p>' sttRenderOn: Transcript.
+"'<p>Hello STT</p>'"
+
+"And in the Transcript you'll see:"
+
+'Greetings from an STT closure!'
+```
+
 ## Features
 
 - Content agnostic.
@@ -20,12 +53,12 @@ Templates with the Power of Smalltalk
 - Compiles content lazily only once.
 - Opening and closing tags and display token can be customized.
 ___
-1. [Description](#description)
-2. [Examples](#examples)
-3. [Install](#install)
-4. [Guides](#guides)
-5. [Performance](#performance)
-6. [Backstory](#backstory)
+
+1. [Examples](#examples)
+2. [Install](#install)
+3. [Guides](#guides)
+4. [Performance](#performance)
+5. [Backstory](#backstory)
 
 ## Install
 
@@ -45,39 +78,6 @@ Or as dependency in your `Baseline`
 
 ```smalltalk
 spec baseline: 'STTemplate' with: [ spec repository: 'github://sebastianconcept/STTemplate:v0.0.3' ]
-```
-
-## Description
-
-`STTemplate` is a Smalltalk template class.
-
-It can run Smalltalk code found between the opening (`<st`) and closing (`>`) tags when present in the content.
-
-There are two ways to have Smalltalk running from `STTemplate` instances:
-
-### 1. Displayed
-
-Analogous to a `printIt`
-
-```smalltalk
-'<p><st= ''Hello '', self ></p>' sttRenderOn: 'STT'.
-"'<p>Hello STT</p>'"
-```
-
-### 2. Evaluated
-
-Analogous to a `doIt`
-
-```smalltalk
-'<p>Hello STT<st 40+2 ></p>' sttRenderOn: 'STT'.
-"'<p>Hello STT</p>'"
-
-'<p>Hello STT<st self crShow: ''Greetings from an STT closure!'' ></p>' sttRenderOn: Transcript.
-"'<p>Hello STT</p>'"
-
-"And in the Transcript you'll see:"
-
-'Greetings from an STT closure!'
 ```
 
 ### Examples

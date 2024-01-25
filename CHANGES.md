@@ -1,3 +1,9 @@
+Jan 25, 2024
+===================================
+- STT has new deprecated methods in favor of methods that are friendlier to Ride-based applications.
+- `STT yield: aNamedPartialToYield` is now `STT yieldUsing: aNamedPartialToYield`.
+- `STT yield: aNamedPartialToYield on: aContext` is now `STT yield: aContext using: aNamedPartialToYield`.
+
 Jan 23, 2024
 ===================================
 - Added smalltalkCI

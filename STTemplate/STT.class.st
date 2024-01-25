@@ -30,6 +30,7 @@ STT class >> getTemplateFrom: aNamedPartialToYield in: partialsDictionaryish [
 STT class >> yield: aNamedPartialToYield [
 
 	| renderingContext |
+	self deprecated: 'use yieldUsing: aTemplateName'.
 	renderingContext := STTCurrentRenderingContext value.
 	renderingContext ifNil: [ 
 		STTError signal:
@@ -40,6 +41,32 @@ STT class >> yield: aNamedPartialToYield [
 
 { #category : #public }
 STT class >> yield: aNamedPartialToYield on: aContext [
+
+	| renderingContext template outStream result |
+	self deprecated: 'use yield:using:'.
+	renderingContext := STTCurrentRenderingContext value.
+	template := self
+		            getTemplateFrom: aNamedPartialToYield
+		            in: renderingContext partials.
+	outStream := STTCurrentRenderingStream value.
+	result := template
+		          renderOn: aContext
+		          partials: renderingContext partials.
+	outStream nextPutAll: result
+]
+
+{ #category : #public }
+STT class >> yield: aContext template: anSTTemplate [
+
+	| renderingContext outStream result |
+	renderingContext := STTCurrentRenderingContext value.
+	outStream := STTCurrentRenderingStream value.
+	result := anSTTemplate renderOn: aContext.
+	outStream nextPutAll: result
+]
+
+{ #category : #public }
+STT class >> yield: aContext using: aNamedPartialToYield [
 
 	| renderingContext template outStream result |
 	renderingContext := STTCurrentRenderingContext value.
@@ -57,8 +84,23 @@ STT class >> yield: aNamedPartialToYield on: aContext [
 STT class >> yieldPartial: anSTTemplate on: aContext [
 
 	| renderingContext outStream result |
+	self deprecated: 'use yield:template:'.
 	renderingContext := STTCurrentRenderingContext value.
 	outStream := STTCurrentRenderingStream value.
 	result := anSTTemplate renderOn: aContext.
 	outStream nextPutAll: result
+]
+
+{ #category : #public }
+STT class >> yieldUsing: aNamedPartialToYield [
+
+	| renderingContext |
+	renderingContext := STTCurrentRenderingContext value.
+	renderingContext ifNil: [ 
+		STTError signal:
+			('Template context unreacheable while trying to yield {1}' format:
+				 { aNamedPartialToYield asString }) ].
+	self
+		yield: renderingContext templateContext
+		using: aNamedPartialToYield
 ]

@@ -319,7 +319,7 @@ STTemplateTest >> testComposedWithNamedPartialsWithContext [
 		            at: #namedYield put: '<p>This content is <st= self></p>' asSTTemplate;
 		            yourself.
 
-	rendered := '<h1>Contents</h1><div><st= STT yield: #namedYield ></div>'
+	rendered := '<h1>Contents</h1><div><st STT yieldUsing: #namedYield ></div>'
 		            sttRenderOn: 42
 		            partials: partials.
 
@@ -1003,8 +1003,8 @@ STTemplateTest >> testYieldDeeperPartial [
 
 	| template partials alertsTemplate rendered expectedRendering |
 	template := '
-<div><st= STT yield: ''shared/alerts.html'' on: self><div>
-<st= STT yield: #showJob >
+<div><st STT yieldUsing: ''shared/alerts.html''><div>
+<st STT yieldUsing: #showJob >
 ' asSTTemplate.
 
 	alertsTemplate := '<div><st= self ></div><ul><li>Alerting</li></ul>'

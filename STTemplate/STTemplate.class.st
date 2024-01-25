@@ -393,7 +393,7 @@ STTemplate >> isToBeDisplayed: sourceStream displayToken: displayToken [
 STTemplate >> isUnnamedYield: aSmalltalkExpression [
 
 	^ (aSmalltalkExpression indexOfSubCollection: 'yield') > 0 and: [ 
-		  (aSmalltalkExpression indexOfSubCollection: 'yield:') isZero ]
+		  (aSmalltalkExpression indexOfSubCollection: 'yieldUsing:') isZero ]
 ]
 
 { #category : #actions }
@@ -427,6 +427,7 @@ STTemplate >> render [
 STTemplate >> renderNamedYieldsFrom: smalltalkExpression on: rendered [
 
 	| partialRenderingSnippet |
+
 	partialRenderingSnippet := String streamContents: [ :str | 
 		                           str nextPutAll: smalltalkExpression.
 		                           self
@@ -454,7 +455,6 @@ STTemplate >> renderOn: anObject partial: partial [
 	The STTCurrentRenderingContext dynamic variable and STTCurrentRenderingContext gives them
 	access to complete its rendering process."
 
-	self deprecated: 'not used'.
 	^ self
 		  renderOn: anObject
 		  partials: { (#_yield -> partial) } asDictionary
@@ -557,7 +557,8 @@ STTemplate >> renderYieldOn: rendered [
 	| partialRenderingSnippet smalltalkExpression |
 	"Preserves the context in which the partial should be rendered
 	and makes it available by grabbing it from the expected private selector key."
-	smalltalkExpression := 'STT yield: #_yield on: self'.
+
+	smalltalkExpression := 'STT yieldUsing: #_yield'.
 
 	partialRenderingSnippet := String streamContents: [ :str | 
 		                           str nextPutAll: smalltalkExpression.

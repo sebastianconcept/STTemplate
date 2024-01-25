@@ -56,28 +56,23 @@ STT class >> yield: aNamedPartialToYield on: aContext [
 ]
 
 { #category : #public }
-STT class >> yield: aContext template: anSTTemplate [
+STT class >> yield: aContext template: anSTTemplate on: writeStream [
 
-	| renderingContext outStream result |
-	renderingContext := STTCurrentRenderingContext value.
-	outStream := STTCurrentRenderingStream value.
-	result := anSTTemplate renderOn: aContext.
-	outStream nextPutAll: result
+	writeStream nextPutAll: (anSTTemplate renderOn: aContext)
 ]
 
 { #category : #public }
 STT class >> yield: aContext using: aNamedPartialToYield [
 
-	| renderingContext template outStream result |
+	| renderingContext template |
 	renderingContext := STTCurrentRenderingContext value.
 	template := self
 		            getTemplateFrom: aNamedPartialToYield
 		            in: renderingContext partials.
-	outStream := STTCurrentRenderingStream value.
-	result := template
-		          renderOn: aContext
-		          partials: renderingContext partials.
-	outStream nextPutAll: result
+	self
+		yield: aContext
+		template: template
+		on: STTCurrentRenderingStream value
 ]
 
 { #category : #public }

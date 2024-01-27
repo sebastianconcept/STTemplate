@@ -6,7 +6,7 @@ Metacello new
   load.
 ```
 
-### Configure the server and setup routes
+### Configure the server
 ```smalltalk
 "Configure Teapot defaults"
 teapot := Teapot configure: {
@@ -22,7 +22,9 @@ teapot	 exception: Error ->  [ :ex :req | | content |
 		ifFalse: [ 'Internal error' ].
 		TeaResponse serverError body: content.
 	].
-
+```
+### Setup routes
+```smalltalk
 "Add a ping route"
 teapot GET: '/ping' -> 'pong'.
 

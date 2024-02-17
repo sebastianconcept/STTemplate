@@ -51,7 +51,7 @@ spec baseline: 'STTemplate' with: [ spec repository: 'github://sebastianconcept/
 
 `STTemplate` is a Smalltalk template class.
 
-It can run Smalltalk code found between the opening (`<st`) and closing (`>`) tags when present in the content.
+It can run Smalltalk code found between the opening (`<%`) and closing (`%>`) tags when present in the content.
 
 There are two ways to have Smalltalk running from `STTemplate` instances:
 
@@ -60,7 +60,7 @@ There are two ways to have Smalltalk running from `STTemplate` instances:
 Analogous to a `printIt`
 
 ```smalltalk
-'<p><st= ''Hello '', self ></p>' sttRenderOn: 'STT'.
+'<p><%= ''Hello '', self %></p>' sttRenderOn: 'STT'.
 "'<p>Hello STT</p>'"
 ```
 
@@ -69,10 +69,10 @@ Analogous to a `printIt`
 Analogous to a `doIt`
 
 ```smalltalk
-'<p>Hello STT<st 40+2 ></p>' sttRenderOn: 'STT'.
+'<p>Hello STT<% 40+2 %></p>' sttRenderOn: 'STT'.
 "'<p>Hello STT</p>'"
 
-'<p>Hello STT<st self crShow: ''Greetings from an STT closure!'' ></p>' sttRenderOn: Transcript.
+'<p>Hello STT<% self crShow: ''Greetings from an STT closure!'' %></p>' sttRenderOn: Transcript.
 "'<p>Hello STT</p>'"
 
 "And in the Transcript you'll see:"
@@ -85,7 +85,7 @@ Analogous to a `doIt`
 ```smalltalk
 "Displays the 42 as content of the span element:"
 
-'<p>The Answer: <span><st= 42></span></p>' sttRenderOn: nil.
+'<p>The Answer: <span><%= 42%></span></p>' sttRenderOn: nil.
 "'<p>The Answer: <span>42</span></p>'"
 ```
 
@@ -93,7 +93,7 @@ Analogous to a `doIt`
 "Displays the 42 as content of the span element because
 adds 2 to the context sent with `sttRenderOn: 40`"
 
-'<p>The Answer: <span><st= self + 2></span></p>' sttRenderOn: 40.
+'<p>The Answer: <span><%= self + 2%></span></p>' sttRenderOn: 40.
 "'<p>The Answer: <span>42</span></p>'"
 ```
 
@@ -102,7 +102,7 @@ adds 2 to the context sent with `sttRenderOn: 40`"
 so it displays `Answer: ` coming from `self key capitalized, ': '`
 and then `42` coming from displaying `self value + 2`"
 
-'<p>The <span><st= self key capitalized, '': ''></span><span><st= self value + 2></span></p>' sttRenderOn: (#answer -> 40).
+'<p>The <span><%= self key capitalized, '': ''%></span><span><%= self value + 2%></span></p>' sttRenderOn: (#answer -> 40).
 "'<p>The <span>Answer: </span><span>42</span></p>'"
 ```
 
@@ -111,7 +111,7 @@ and then `42` coming from displaying `self value + 2`"
 In each iteration, it creates another Smalltalk closure that has access
 to self as expected and uses that to display its content:"
 
-'<st 1 to: 3 do: [ :i | ><p>The Answer is <span><st= self value + 2>!</span></p><st ] >' sttRenderOn: (#answer -> 40).
+'<% 1 to: 3 do: [ :i | %><p>The Answer is <span><%= self value + 2%>!</span></p><% ] >' sttRenderOn: (#answer -> 40).
 "'<p>The Answer is <span>42!</span></p><p>The Answer is <span>42!</span></p><p>The Answer is <span>42!</span></p>'"
 ```
 

@@ -29,7 +29,7 @@ teapot	 exception: Error ->  [ :ex :req | | content |
 teapot GET: '/ping' -> 'pong'.
 
 "Create an SSTemplate"
-sstEcho := STTemplate on: '<st [ | echo | echo := self allButFirst ><h1>Echoing:</h1><h2><st= self ></h2><h3><st= echo ></h3><p><st= echo ></p> <st ] value >'.
+sstEcho := STTemplate on: '<% [ | echo | echo := self allButFirst %><h1>Echoing:</h1><h2><%= self %></h2><h3><%= echo %></h3><p><%= echo %></p> <% ] value %>'.
 
 "Add a echo route that will render the HTML the template based on the received message value."
 teapot GET: '/echo/<message>' -> [ :req | sstEcho renderOn: (req at: #message) ].

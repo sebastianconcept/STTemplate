@@ -149,7 +149,7 @@ STTemplate class >> initializeExceptionalTerminationSymbols [
 { #category : #initialization }
 STTemplate class >> initializeOptions [
 
-	self beSST.
+	self beLikeERB.
 	^ options
 ]
 
@@ -260,18 +260,6 @@ STTemplate >> asSmalltalkSource [
 ]
 
 { #category : #actions }
-STTemplate >> basicCompile [
-
-	^ Smalltalk compiler
-		  source: self asSmalltalkSource;
-		  context: nil;
-		  failBlock: [ ^ nil ];
-		  noPattern: true;
-		  options: #( + optionParseErrors - optionSkipSemanticWarnings );
-		  compile
-]
-
-{ #category : #actions }
 STTemplate >> basicCompileOn: anObject [
 
 	^ anObject class compiler
@@ -279,19 +267,6 @@ STTemplate >> basicCompileOn: anObject [
 		  failBlock: [ ^ nil ];
 		  context: nil;
 		  compile
-]
-
-{ #category : #actions }
-STTemplate >> compile [
-
-	"Answers the compiled method resulting for this template.
-	Catches syntax error notifications to signal STTemplateCompilationError 
-	so applications can define how to handle that issue."
-
-	self deprecated: 'use compileOn: anObject'.
-	^ [ self basicCompile ]
-		  on: SyntaxErrorNotification
-		  do: [ :x | STTemplateCompilationError signal: x messageText ]
 ]
 
 { #category : #actions }
@@ -307,35 +282,9 @@ STTemplate >> compileOn: anObject [
 ]
 
 { #category : #accessing }
-STTemplate >> compiledMethod [
-
-	self deprecated: 'use compiledMethodOn:'.
-	^ compiledMethod ifNil: [ self initializeCompiledMethod ]
-]
-
-{ #category : #accessing }
 STTemplate >> compiledMethodOn: anObject [
 
 	^ compiledMethod ifNil: [ self initializeCompiledMethodOn: anObject ]
-]
-
-{ #category : #accessing }
-STTemplate >> getPartialNameFrom: smalltalkExpression [
-
-	"Answer the name of the partial in the given smalltalkExpression.
-
-	A template of a possible partial named 'showJobs' would look like this:
-	
-	<st= STT yield: #showJob >
-	"
-
-	| src |
-	self deprecated: 'not needed anymore'.
-	src := smalltalkExpression readStream.
-	src upTo: $#.
-
-	^ String streamContents: [ :s | 
-		  [ src peek isAlphaNumeric ] whileTrue: [ s nextPut: src next ] ]
 ]
 
 { #category : #testing }
@@ -355,13 +304,6 @@ STTemplate >> hasDisplayToken: token at: anInteger [
 STTemplate >> hasNamedYield: aSmalltalkExpression [
 
 	^ (aSmalltalkExpression indexOfSubCollection: 'yield:') > 0
-]
-
-{ #category : #initialization }
-STTemplate >> initializeCompiledMethod [
-
-	self deprecated: 'use initializeCompiledMethodOn:'.
-	^ compiledMethod := self compile
 ]
 
 { #category : #initialization }
@@ -449,12 +391,11 @@ STTemplate >> renderOn: anObject [
 STTemplate >> renderOn: anObject partial: partial [
 
 	"Answer the result of rendering the receiver using anObject as template context
-	and the given partial.
+	and the given partial to be yield in the template.
 	The partials are nothing but sub-templates that have also access to the template context.
 	The STTCurrentRenderingContext dynamic variable and STTCurrentRenderingContext gives them
 	access to complete its rendering process."
 
-	self deprecated: 'not used'.
 	^ self
 		  renderOn: anObject
 		  partials: { (#_yield -> partial) } asDictionary

@@ -1,13 +1,13 @@
 name: Unit Tests
 
-on: [push,pull_request,workflow_dispatch]
+on: [push]
 
 jobs:
    unit-tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        smalltalk: [ Pharo64-10 ]
+        smalltalk: [ Pharo64-11 ]
     name: ${{ matrix.smalltalk }}
     steps:
       - uses: actions/checkout@v2

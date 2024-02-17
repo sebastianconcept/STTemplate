@@ -2,14 +2,19 @@
 
 Templates with the Power of Smalltalk
 
+[![Release](https://img.shields.io/github/v/tag/sebastianconcept/STTemplate?label=release)](https://github.com/sebastianconcept/STTemplate/releases)
 [![Unit Tests](https://github.com/sebastianconcept/STTemplate/actions/workflows/build.yml/badge.svg)](https://github.com/sebastianconcept/STTemplate/actions/workflows/build.yml)
+
 ![Tests](https://img.shields.io/badge/tests-40-green)
 [![Coverage Status](https://codecov.io/github/sebastianconcept/STTemplate/coverage.svg?branch=main)](https://codecov.io/gh/sebastianconcept/STTemplate/branch/master)
 
-[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE.txt)
-[![Release](https://img.shields.io/github/v/tag/sebastianconcept/STTemplate?label=release)](https://github.com/sebastianconcept/STTemplate/releases)
+[![Pharo 10](https://img.shields.io/badge/Pharo-10-%23383932.svg)](https://pharo.org/download)
+[![Pharo 11](https://img.shields.io/badge/Pharo-11-%23383932.svg)](https://pharo.org/download)
 
-[![Pharo 10](https://img.shields.io/badge/Pharo-10-%23aac9ff.svg)](https://pharo.org/download)
+[![Social](https://img.shields.io/github/stars/sebastianconcept/STTemplate?style=social)]()
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE.txt)
+
+
 
 ## Features
 

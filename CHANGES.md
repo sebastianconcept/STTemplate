@@ -1,3 +1,7 @@
+Feb 17, 2024
+===================================
+- Using by default the same convetion seen in Ruby on Rails.
+
 Jan 23, 2024
 ===================================
 - Added smalltalkCI

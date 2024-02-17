@@ -48,7 +48,7 @@ sttCounterPage := STTemplate on: '<!DOCTYPE html>
   </head>
   <body>
     <h1>Counter</h1>
-    <h1 id="counterValue"><st= self></h1>
+    <h1 id="counterValue"><%= self%></h1>
     <button
       hx-post="/increase"
       hx-target="#counterValue"
@@ -66,7 +66,7 @@ sttCounterPage := STTemplate on: '<!DOCTYPE html>
 </html>'.
 
 "The one for just the part used to update on increase/decrease"
-sttCounterView := '<h1 id="counterValue"><st= self></h1>' asSTTemplate.
+sttCounterView := '<h1 id="counterValue"><%= self%></h1>' asSTTemplate.
 ```
 
 ### Setup routes

@@ -149,7 +149,7 @@ STTemplate class >> initializeExceptionalTerminationSymbols [
 { #category : #initialization }
 STTemplate class >> initializeOptions [
 
-	self beSST.
+	self beLikeERB.
 	^ options
 ]
 

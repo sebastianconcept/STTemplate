@@ -19,22 +19,22 @@ STTemplateTest class >> jobsTableTemplate [
     </tr>
   </thead>
   <tbody>
-    <st [ |tableContext|
-      tableContext := 42 >
-      <st self jobs do: [ :job | >
+    <% [ |tableContext|
+      tableContext := 42 %>
+      <% self jobs do: [ :job | %>
       <tr
-        hx-on:click="showJob("<st= job jobId >")"
+        hx-on:click="showJob("<%= job jobId %>")"
       >
         <th>
-          <st 4+7 >
-          <st= job jobId >
+          <% 4+7 %>
+          <%= job jobId %>
         </th>
-        <td><st= job firstName ></td>
-        <td><st= tableContext asString,''-'', job effect ></td>
-        <td><st= job waitingFor ></td>
+        <td><%= job firstName %></td>
+        <td><%= tableContext asString,''-'', job effect %></td>
+        <td><%= job waitingFor %></td>
       </tr>
-      <st ] >
-    <st ] value >
+      <% ] %>
+    <% ] value %>
   </tbody>
 </table>
 '
@@ -221,7 +221,7 @@ STTemplateTest >> testCanAccessInstVarsOfTheContext [
 		                   firstName: 'Questioner';
 		                   yourself.
 	template := '<div>
-<section><st= firstName, '' '', answer asString></section>
+<section><%= firstName, '' '', answer asString %></section>
 </div>' asSTTemplate.
 
 	expectedRendering := '<div>
@@ -240,17 +240,17 @@ STTemplateTest >> testCanAccessInstVarsOfTheContextFromAPartial [
 		                   firstName: 'Questioner';
 		                   yourself.
 	template := '<div>
-<section><st STT yield: ''shared/alerts.html'' on: self></section>
-<section><st STT yield: #showJob on: self></section>
+<section><% STT yield: ''shared/alerts.html'' on: self %></section>
+<section><% STT yield: #showJob on: self %></section>
 </div>' asSTTemplate.
 
 	"With message send"
-	alertsTemplate := '<div>Beware <st= self firstName></div><ul><li>Alert 1</li></ul>'
+	alertsTemplate := '<div>Beware <%= self firstName %></div><ul><li>Alert 1</li></ul>'
 		                  asSTTemplate.
 	partials := { 
 		            (#shared
 		             -> { ('alerts.html' -> alertsTemplate) } asDictionary).
-		            (#showJob -> '<p><st= 42 ></p>' asSTTemplate) }
+		            (#showJob -> '<p><%= 42 %></p>' asSTTemplate) }
 		            asDictionary.
 
 	expectedRendering := '<div>
@@ -261,12 +261,12 @@ STTemplateTest >> testCanAccessInstVarsOfTheContextFromAPartial [
 	self assert: rendered equals: expectedRendering.
 
 	"With direct access to the instVar"
-	alertsTemplate := '<div>Beware <st= firstName></div><ul><li>Alert 1</li></ul>'
+	alertsTemplate := '<div>Beware <%= firstName %></div><ul><li>Alert 1</li></ul>'
 		                  asSTTemplate.
 	partials := { 
 		            (#shared
 		             -> { ('alerts.html' -> alertsTemplate) } asDictionary).
-		            (#showJob -> '<p><st= 42 ></p>' asSTTemplate) }
+		            (#showJob -> '<p><%= 42 %></p>' asSTTemplate) }
 		            asDictionary.		
 	rendered := template renderOn: templateContext partials: partials.
 	self assert: rendered equals: expectedRendering.
@@ -302,7 +302,7 @@ STTemplateTest >> testComposedWithNamedPartials [
 		            at: #namedYield put: '<p>This content</p>' asSTTemplate;
 		            yourself.
 
-	rendered := '<h1>Contents</h1><div><st= STT yield: #namedYield ></div>'
+	rendered := '<h1>Contents</h1><div><% STT yield: #namedYield %></div>'
 		            sttRenderOn: 42
 		            partials: partials.
 
@@ -316,10 +316,10 @@ STTemplateTest >> testComposedWithNamedPartialsWithContext [
 
 	| rendered partials |
 	partials := Dictionary new
-		            at: #namedYield put: '<p>This content is <st= self></p>' asSTTemplate;
+		            at: #namedYield put: '<p>This content is <%= self%></p>' asSTTemplate;
 		            yourself.
 
-	rendered := '<h1>Contents</h1><div><st= STT yield: #namedYield ></div>'
+	rendered := '<h1>Contents</h1><div><%= STT yield: #namedYield %></div>'
 		            sttRenderOn: 42
 		            partials: partials.
 
@@ -332,9 +332,9 @@ STTemplateTest >> testComposedWithNamedPartialsWithContext [
 STTemplateTest >> testComposedWithPartial [
 
 	| rendered partial |
-	partial := '<p>The answer is <st= 40+2></p>' asSTTemplate.
+	partial := '<p>The answer is <%= 40+2 %></p>' asSTTemplate.
 
-	rendered := '<h1>Contents</h1><div><st= STT yield ></div>'
+	rendered := '<h1>Contents</h1><div><%= STT yield %></div>'
 		            sttRenderOn: nil
 		            partial: partial.
 
@@ -347,9 +347,9 @@ STTemplateTest >> testComposedWithPartial [
 STTemplateTest >> testComposedWithPartialWithCustomizedContext [
 
 	| rendered partial |
-	partial := '<p>The answer is <st= 40+self></p>' asSTTemplate.
+	partial := '<p>The answer is <%= 40+self %></p>' asSTTemplate.
 
-	rendered := '<h1>Contents</h1><div><st= STT yield ></div>'
+	rendered := '<h1>Contents</h1><div><%= STT yield %></div>'
 		            sttRenderOn: 2
 		            partial: partial.
 
@@ -364,10 +364,10 @@ STTemplateTest >> testComposedWithPartialsWithCustomizedContext [
 	| rendered partials |
 	partials := Dictionary new
 		            at: #namedYield
-		            put: '<p>This content is <st= self ></p>' asSTTemplate;
+		            put: '<p>This content is <%= self %></p>' asSTTemplate;
 		            yourself.
 
-	rendered := '<h1>Contents</h1><div><st= STT yield: #namedYield on: #(#programmatic #dynamic) atRandom ></div>'
+	rendered := '<h1>Contents</h1><div><% STT yield: #namedYield on: #(#programmatic #dynamic) atRandom %></div>'
 		            sttRenderOn: nil
 		            partials: partials.
 
@@ -384,7 +384,7 @@ STTemplateTest >> testComposedWithUnnamedPartial [
 	| rendered partial |
 	partial := '<p>This content</p>' asSTTemplate.
 
-	rendered := '<h1>Contents</h1><div><st= STT yield ></div>'
+	rendered := '<h1>Contents</h1><div><% STT yield %></div>'
 		            sttRenderOn: 42
 		            partial: partial.
 	self
@@ -397,21 +397,21 @@ STTemplateTest >> testDetectsCustomClosingTag [
 
 	| stt |
 	STTemplate options at: #closingTag put: '/!?itEndsHere}}'.
-	stt := '<st  ><span>42</span>' asSTTemplate.
+	stt := '<%  %><span>42</span>' asSTTemplate.
 	self should: [ stt renderOn: nil ] raise: STTemplateCompilationError.
-	stt := '<st  /!?itEndsHere}}<span>41</span>' asSTTemplate.
+	stt := '<%  /!?itEndsHere}}<span>41</span>' asSTTemplate.
 	self assert: (stt renderOn: nil) equals: '<span>41</span>'.
 
-	STTemplate options at: #closingTag put: '%>'.
-	stt := '<st  %><span>42</span>' asSTTemplate.
+	STTemplate options at: #closingTag put: '~>'.
+	stt := '<%  ~><span>42</span>' asSTTemplate.
 	self assert: (stt renderOn: nil) equals: '<span>42</span>'.
 
 	STTemplate options at: #closingTag put: '?>'.
-	stt := '<span><st= 42 ?></span>' asSTTemplate.
+	stt := '<span><%= 42 ?></span>' asSTTemplate.
 	self assert: (stt renderOn: nil) equals: '<span>42</span>'.
 
 	STTemplate options at: #closingTag put: '-->'.
-	stt := '<span><st= self --></span>' asSTTemplate.
+	stt := '<span><%= self --></span>' asSTTemplate.
 	self assert: (stt renderOn: 42) equals: '<span>42</span>'
 ]
 
@@ -467,7 +467,7 @@ STTemplateTest >> testDetectsMissingClosingTag [
 
 	| stt |
 	stt := '<tbody>
-    <st self jobs do: [ :job |' asSTTemplate.
+    <% self jobs do: [ :job |' asSTTemplate.
 
 	"Not exactly detecting that but failing correctly."
 	self should: [ stt renderOn: nil ] raise: STTemplateCompilationError
@@ -477,7 +477,7 @@ STTemplateTest >> testDetectsMissingClosingTag [
 STTemplateTest >> testDisplayValueFromCustomAttribute [
 
 	| stt context |
-	stt := '<div data-custom="questionEverything(<st= self at: #answer>)">Ask</div>'
+	stt := '<div data-custom="questionEverything(<%= self at: #answer %>)">Ask</div>'
 		       asSTTemplate.
 
 	context := Dictionary new
@@ -498,7 +498,7 @@ STTemplateTest >> testEmpty [
 STTemplateTest >> testEnclosingCode [
 
 	self
-		assert: ('<st= 42 ><p>Hello</p>' sttRenderOn: nil)
+		assert: ('<%= 42 %><p>Hello</p>' sttRenderOn: nil)
 		equals: '42<p>Hello</p>'
 ]
 
@@ -506,11 +506,11 @@ STTemplateTest >> testEnclosingCode [
 STTemplateTest >> testEnclosingNoCode [
 
 	self
-		assert: ('<p>Hello</p><st >' sttRenderOn: nil)
+		assert: ('<p>Hello</p><% %>' sttRenderOn: nil)
 		equals: '<p>Hello</p>'.
 
 	self
-		assert: ('<p>Hello</p><span><st= ></span>' sttRenderOn: nil)
+		assert: ('<p>Hello</p><span><%= %></span>' sttRenderOn: nil)
 		equals: '<p>Hello</p><span></span>'
 ]
 
@@ -518,7 +518,7 @@ STTemplateTest >> testEnclosingNoCode [
 STTemplateTest >> testEnclosingNoCodeAfterElement [
 
 	| stt |
-	stt := '<p>Hello</p><st >' asSTTemplate.
+	stt := '<p>Hello</p><% %>' asSTTemplate.
 	self shouldnt: [ stt asSmalltalkSource ] raise: STTError.
 	self assert: (stt renderOn: nil) equals: '<p>Hello</p>'
 ]
@@ -527,7 +527,7 @@ STTemplateTest >> testEnclosingNoCodeAfterElement [
 STTemplateTest >> testEnclosingNoCodeBeforeElement [
 
 	| rendered |
-	rendered := '<st ><p>Hello</p>' sttRenderOn: nil.
+	rendered := '<% %><p>Hello</p>' sttRenderOn: nil.
 	self assert: rendered  equals: '<p>Hello</p>'
 ]
 
@@ -535,7 +535,7 @@ STTemplateTest >> testEnclosingNoCodeBeforeElement [
 STTemplateTest >> testEnclosingNoCodeEnclosingElement [
 
 	self
-		should: [ '<st <p>Hello</p> >' asSTTemplate renderOn: nil ]
+		should: [ '<% <p>Hello</p> %>' asSTTemplate renderOn: nil ]
 		raise: STTemplateCompilationError
 ]
 
@@ -553,17 +553,17 @@ STTemplateTest >> testNestedClosure [
 
 	| stt shouldRender |
 	stt := STTemplate on: '
-		<st [ | answer | 
+		<% [ | answer | 
 			answer := self.
-		>
+		%>
 			<ul>
-				<li><st= ''What is the answer'' ></li> 
-				<li>to the question? <st= answer asString ></li> 
-				<st [ answer := answer + 1>
-					<li>and the answer +1? That would be: <st= answer asString ></li>
-				<st ] value >
+				<li><%= ''What is the answer'' %></li> 
+				<li>to the question? <%= answer asString %></li> 
+				<% [ answer := answer + 1 %>
+					<li>and the answer +1? That would be: <%= answer asString %></li>
+				<% ] value %>
 			</ul>
-		<st ] value >'.
+		<% ] value %>'.
 
 	shouldRender := '
 		
@@ -583,16 +583,16 @@ STTemplateTest >> testNestedClosureSource [
 
 	| stt shouldRender |
 	stt := STTemplate on: '
-		<st [ | answer | 
-			answer := self>
+		<% [ | answer | 
+			answer := self %>
 			<ul>
-				<li><st= ''What is the answer'' ></li> 
-				<li>to the question? <st= answer asString ></li> 
-				<st [ answer := answer + 1>
-					<li>and the answer +1? That would be: <st= answer asString ></li>
-				<st ] value>
+				<li><%= ''What is the answer'' %></li> 
+				<li>to the question? <%= answer asString %></li> 
+				<% [ answer := answer + 1%>
+					<li>and the answer +1? That would be: <%= answer asString%></li>
+				<% ] value %>
 			</ul>
-		<st ] value>'.
+		<% ] value %>'.
 
 	shouldRender := '_anonymousRenderer
 | out result |
@@ -602,7 +602,7 @@ out := String new writeStream.
 out nextPutAll: ''
 		''.
  [ | answer | 
-			answer := self.
+			answer := self .
 out nextPutAll: ''
 			<ul>
 				<li>''.
@@ -617,15 +617,15 @@ out nextPutAll: ''</li>
  [ answer := answer + 1.
 out nextPutAll: ''
 					<li>and the answer +1? That would be: ''.
-result := [  answer asString  ] value.
+result := [  answer asString ] value.
 out nextPutAll: result asString.
 out nextPutAll: ''</li>
 				''.
- ] value.
+ ] value .
 out nextPutAll: ''
 			</ul>
 		''.
- ] value.
+ ] value .
 out contents ]'.
 	self assert: stt asSmalltalkSource equals: shouldRender
 ]
@@ -635,12 +635,12 @@ STTemplateTest >> testNestedDisplayValueFromCustomAttribute [
 
 	| stt context shouldRender source |
 	source := '<ul>
-			<st self do: [ :dic | >
+			<% self do: [ :dic | %>
 				<li>
-					<div data-custom="questionEverything(<st= dic at: #answer >)">
-					<span>Ask, </span><span><st= dic at: #what ></span></div>
+					<div data-custom="questionEverything(<%= dic at: #answer %>)">
+					<span>Ask, </span><span><%= dic at: #what %></span></div>
 				</li>
-			<st ] >
+			<% ] %>
 		</ul>' trimmed copyWithoutAll: { 
 			          Character cr.
 			          Character lf.
@@ -668,7 +668,7 @@ STTemplateTest >> testPartialWithSingleQuote [
 	partials := { (#withStringToEscapeQuote
 	             -> '<p>That''s also it!</p>' asSTTemplate) }
 		            asDictionary.
-	template := '<div><p>That''s it and</p><st STT yield: #withStringToEscapeQuote ></div>'
+	template := '<div><p>That''s it and</p><% STT yield: #withStringToEscapeQuote %></div>'
 		            asSTTemplate.
 
 	self
@@ -696,21 +696,21 @@ STTemplateTest >> testRenderComposedRenderedWithoutContext [
 		            at: #showJob put: '
 <div>
 	<h1>Partial content for #showJob</h1>
-	<div><st STT yield: #jobDetails on: self></div>
+	<div><% STT yield: #jobDetails on: self %></div>
 </div>
 ' asSTTemplate;
 		            at: #jobDetails
 		            put:
-			            '<p>Job ID: <span><st= self jobId></span></p><p>Job description: <span><st= self description></span></p>'
+			            '<p>Job ID: <span><%= self jobId %></span></p><p>Job description: <span><%= self description %></span></p>'
 				            asSTTemplate;
 		            yourself.
 	template := '
 <ul>
-	<st self jobs do: [ :job | >
+	<% self jobs do: [ :job | %>
 		<li>
-			<st= STT yield: #showJob on: job>
+			<%= STT yield: #showJob on: job %>
 		</li>
-	<st ]>
+	<% ] %>
 </ul>
 ' asSTTemplate.
 
@@ -747,8 +747,8 @@ STTemplateTest >> testRenderComposedRenderedWithoutContext [
 STTemplateTest >> testRenderComposedSnippetWithNamedYield [
 
 	| template partials |
-	template := '<st= STT yield: #showJob >' asSTTemplate.
-	partials := { (#showJob -> '<st= 42 >' asSTTemplate) } asDictionary.
+	template := '<%= STT yield: #showJob %>' asSTTemplate.
+	partials := { (#showJob -> '<%= 42 %>' asSTTemplate) } asDictionary.
 
 	self
 		assert: template asSmalltalkSnippet
@@ -773,7 +773,7 @@ STTemplateTest >> testRenderComposedSnippetWithoutContext [
 		            at: #showJob put: '
 <div>
 	<h1>Partial content for #showJob</h1>
-	<p><st STT yield: #jobDetails ></p>
+	<p><% STT yield: #jobDetails %></p>
 </div>
 ' asSTTemplate;
 		            at: #jobDetails
@@ -781,11 +781,11 @@ STTemplateTest >> testRenderComposedSnippetWithoutContext [
 		            yourself.
 	template := '
 <ul>
-	<st self jobs do: [ :job | >
+	<% self jobs do: [ :job | %>
 		<li>
-			<st= STT yield: #showJob >
+			<%= STT yield: #showJob %>
 		</li>
-	<st ] >
+	<% ] %>
 </ul>
 ' asSTTemplate.
 
@@ -796,15 +796,15 @@ STTemplateTest >> testRenderComposedSnippetWithoutContext [
 STTemplateTest >> testRenderDoublyComposedSnippetWithNamedYield [
 
 	| template partials |
-	template := '<main><st= STT yield: #showJob ></main>' asSTTemplate.
+	template := '<main><%= STT yield: #showJob %></main>' asSTTemplate.
 	partials := { 
 		            (#showJob
 		             ->
-		             '<section><st= STT yield: #jobDetails ></section>'
+		             '<section><%= STT yield: #jobDetails %></section>'
 			             asSTTemplate).
 		            (#jobDetails
 		             ->
-		             '<div><st= ''This is the #jobDetails content'' ></div>'
+		             '<div><%= ''This is the #jobDetails content'' %></div>'
 			             asSTTemplate) } asDictionary.
 
 	self
@@ -823,24 +823,24 @@ STTemplateTest >> testRenderFourLevelsComposition [
 		                   description: 'job 1';
 		                   thing: 'something visual';
 		                   yourself.
-	template := '<main><st= STT yield: #levelOne ></main>' asSTTemplate.
+	template := '<main><%= STT yield: #levelOne %></main>' asSTTemplate.
 	partials := { 
 		            (#levelOne -> '<section>
-			<p><st= ''This is the #levelOne content (I include #levelTwo).'' ></p>
-			<div><st= STT yield: #levelTwo on: self></div>
+			<p><%= ''This is the #levelOne content (I include #levelTwo).'' %></p>
+			<div><%= STT yield: #levelTwo on: self%></div>
 						</section>' asSTTemplate).
 		            (#levelTwo -> '<div>
-			<p><st= ''This is the #levelTwo content (I include #levelThree).'' ></p>
-			<div><st= STT yield: #levelThree on: self></div>
+			<p><%= ''This is the #levelTwo content (I include #levelThree).'' %></p>
+			<div><%= STT yield: #levelThree on: self%></div>
 			</div>' asSTTemplate).
 		            (#levelThree -> '<div>
-			<p><st= ''This is the #levelThree content (I include #levelFour).'' ></p>
-			<div><st= STT yield: #levelFour on: self></div>
+			<p><%= ''This is the #levelThree content (I include #levelFour).'' %></p>
+			<div><%= STT yield: #levelFour on: self%></div>
 			</div>' asSTTemplate).
 		            (#levelFour
 		             ->
-		             '<p><st= ''This is the #levelFour content.'' ></p>
-						<p><st= self thing></p>'
+		             '<p><%= ''This is the #levelFour content.'' %></p>
+						<p><%= self thing%></p>'
 			             asSTTemplate) } asDictionary.
 
 	self
@@ -862,8 +862,8 @@ STTemplateTest >> testRenderFourLevelsComposition [
 STTemplateTest >> testRenderSimpleNamedYieldSnippetWithoutDisplayToken [
 
 	| template partials |
-	template := '<st STT yield: #showJob >' asSTTemplate.
-	partials := { (#showJob -> '<st= 42 >' asSTTemplate) } asDictionary.
+	template := '<% STT yield: #showJob %>' asSTTemplate.
+	partials := { (#showJob -> '<%= 42 %>' asSTTemplate) } asDictionary.
 
 	self
 		assert: template asSmalltalkSnippet
@@ -874,19 +874,19 @@ STTemplateTest >> testRenderSimpleNamedYieldSnippetWithoutDisplayToken [
 STTemplateTest >> testRenderTriplyComposedSnippetWithNamedYield [
 
 	| template partials |
-	template := '<main><st= STT yield: #showJob ></main>' asSTTemplate.
+	template := '<main><%= STT yield: #showJob %></main>' asSTTemplate.
 	partials := { 
 		            (#showJob
 		             ->
-		             '<section><st= STT yield: #jobInfo ></section>'
+		             '<section><%= STT yield: #jobInfo %></section>'
 			             asSTTemplate).
 		            (#jobInfo
 		             ->
-			             '<div><p><st= ''This is the #jobInfo content.'' ></p></div><st= STT yield: #jobDetails ></div></div>'
+			             '<div><p><%= ''This is the #jobInfo content.'' %></p></div><%= STT yield: #jobDetails %></div></div>'
 				             asSTTemplate).
 		            (#jobDetails
 		             ->
-		             '<div><st= ''This is the #jobDetails content'' ></div>'
+		             '<div><%= ''This is the #jobDetails content'' %></div>'
 			             asSTTemplate) } asDictionary.
 
 	self
@@ -904,19 +904,19 @@ STTemplateTest >> testRenderTriplyComposedWithNamedYield [
 		                   jobId: 42;
 		                   description: 'job 1';
 		                   yourself.
-	template := '<main><st= STT yield: #showJob ></main>' asSTTemplate.
+	template := '<main><%= STT yield: #showJob %></main>' asSTTemplate.
 	partials := { 
 		            (#showJob
 		             ->
-		             '<section><st= STT yield: #jobInfo ></section>'
+		             '<section><%= STT yield: #jobInfo %></section>'
 			             asSTTemplate).
 		            (#jobInfo
 		             ->
-			             '<div><p><st= ''This is the #jobInfo content.'' ></p></div><st= STT yield: #jobDetails ></div></div>'
+			             '<div><p><%= ''This is the #jobInfo content.'' %></p></div><%= STT yield: #jobDetails %></div></div>'
 				             asSTTemplate).
 		            (#jobDetails
 		             ->
-			             '<div><st= ''Job Details: jobId is {1} and its description is {2}'' format: { self jobId asString. self description } ></div>'
+			             '<div><%= ''Job Details: jobId is {1} and its description is {2}'' format: { self jobId asString. self description } %></div>'
 				             asSTTemplate) } asDictionary.
 
 	self
@@ -929,7 +929,7 @@ STTemplateTest >> testRenderTriplyComposedWithNamedYield [
 STTemplateTest >> testSourceForEnclosingNoCodeBeforeElement [
 
 	| template |
-	template := '<st 6+5 ><p>Hello</p>' asSTTemplate.
+	template := '<% 6+5 %><p>Hello</p>' asSTTemplate.
 	self assert: template asSmalltalkSource equals: '_anonymousRenderer
 | out result |
 out := String new writeStream.
@@ -945,9 +945,9 @@ STTemplateTest >> testSourceForValueFromTempVar [
 
 	| source |
 	source := '<p>Hello</p><span>
-		<st= |answer| 
+		<%= |answer| 
 			answer := 42. 
-			answer >
+			answer %>
 		</span>'.
 
 	self
@@ -982,9 +982,9 @@ STTemplateTest >> testValueFromTempVar [
 
 	| source |
 	source := '<p>Hello</p><span>
-		<st= |answer| 
+		<%= |answer| 
 			answer := 42. 
-			answer >
+			answer %>
 		</span>'.
 
 	self assert: (source sttRenderOn: nil) equals: '<p>Hello</p><span>
@@ -1003,16 +1003,16 @@ STTemplateTest >> testYieldDeeperPartial [
 
 	| template partials alertsTemplate rendered expectedRendering |
 	template := '
-<div><st= STT yield: ''shared/alerts.html'' on: self><div>
-<st= STT yield: #showJob >
+<div><%= STT yield: ''shared/alerts.html'' on: self%><div>
+<%= STT yield: #showJob %>
 ' asSTTemplate.
 
-	alertsTemplate := '<div><st= self ></div><ul><li>Alerting</li></ul>'
+	alertsTemplate := '<div><%= self %></div><ul><li>Alerting</li></ul>'
 		                  asSTTemplate.
-	partials := { 
+	partials := {
 		            (#shared
 		             -> { ('alerts.html' -> alertsTemplate) } asDictionary).
-		            (#showJob -> '<p><st= 42 ></p>' asSTTemplate) }
+		            (#showJob -> '<p><%= 42 %></p>' asSTTemplate) }
 		            asDictionary.
 
 	expectedRendering := '

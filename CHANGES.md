@@ -1,6 +1,8 @@
-Feb 17, 2024
+Jan 25, 2024
 ===================================
-- Using by default the same convetion seen in Ruby on Rails.
+- STT has new deprecated methods in favor of methods that are friendlier to Ride-based applications.
+- `STT yield: aNamedPartialToYield` is now `STT yieldUsing: aNamedPartialToYield`.
+- `STT yield: aNamedPartialToYield on: aContext` is now `STT yield: aContext using: aNamedPartialToYield`.
 
 Jan 23, 2024
 ===================================

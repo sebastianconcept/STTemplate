@@ -86,3 +86,17 @@ STT class >> yieldPartial: anSTTemplate on: aContext [
 	result := anSTTemplate renderOn: aContext.
 	outStream nextPutAll: result
 ]
+
+{ #category : #public }
+STT class >> yieldUsing: aNamedPartialToYield [
+
+	| renderingContext |
+	renderingContext := STTCurrentRenderingContext value.
+	renderingContext ifNil: [ 
+		STTError signal:
+			('Template context unreacheable while trying to yield {1}' format:
+				 { aNamedPartialToYield asString }) ].
+	self
+		yield: renderingContext templateContext
+		using: aNamedPartialToYield
+]

@@ -35,7 +35,7 @@ ___
 "By default it installs 'Core'"
 Metacello new
   baseline: 'STTemplate';
-  repository: 'github://sebastianconcept/STTemplate:v0.0.3';
+  repository: 'github://sebastianconcept/STTemplate:latest';
   load.
 
 "Optionally use `load: #('Core' 'Tests')`" 
@@ -44,7 +44,7 @@ Metacello new
 Or as dependency in your `Baseline`
 
 ```smalltalk
-spec baseline: 'STTemplate' with: [ spec repository: 'github://sebastianconcept/STTemplate:v0.0.3' ]
+spec baseline: 'STTemplate' with: [ spec repository: 'github://sebastianconcept/STTemplate:latest' ]
 ```
 
 ## Description
@@ -111,7 +111,7 @@ and then `42` coming from displaying `self value + 2`"
 In each iteration, it creates another Smalltalk closure that has access
 to self as expected and uses that to display its content:"
 
-'<% 1 to: 3 do: [ :i | %><p>The Answer is <span><%= self value + 2%>!</span></p><% ] >' sttRenderOn: (#answer -> 40).
+'<% 1 to: 3 do: [ :i | %><p>The Answer is <span><%= self value + 2%>!</span></p><% ] %>' sttRenderOn: (#answer -> 40).
 "'<p>The Answer is <span>42!</span></p><p>The Answer is <span>42!</span></p><p>The Answer is <span>42!</span></p>'"
 ```
 

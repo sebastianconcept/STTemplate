@@ -34,21 +34,20 @@ String >> sttRenderOn: anObject [
 ]
 
 { #category : #'*STTemplate' }
-String >> sttRenderOn: anObject partial: partial [
-
+String >> sttRenderOn: anObject partial: aSTTemplate [
 	"Answers the result of rendering an `STTemplate`
 	created from the receiver and rendered using 
-	the given object as template context and the given 
-	partial template to yield within."
+	the given object as context for the template and the given 
+	aSTTemplate to yield within."
 
-	^ self asSTTemplate renderOn: anObject partial: partial
+	^ self asSTTemplate renderOn: anObject partial: aSTTemplate
 ]
 
 { #category : #'*STTemplate' }
-String >> sttRenderOn: anObject partials: partialsDictionarish [
+String >> sttRenderOn: anObject partials: templatesDictionarish [
 
 	"Answers the result of rendering an `STTemplate`
-	 created from the receiver and rendered using the given object."
+	 created from the receiver and rendered using the given object and (sub)templates."
 
-	^ self asSTTemplate renderOn: anObject partials: partialsDictionarish
+	^ self asSTTemplate renderOn: anObject partials: templatesDictionarish
 ]

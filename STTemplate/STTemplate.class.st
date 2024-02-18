@@ -335,7 +335,7 @@ STTemplate >> isToBeDisplayed: sourceStream displayToken: displayToken [
 STTemplate >> isUnnamedYield: aSmalltalkExpression [
 
 	^ (aSmalltalkExpression indexOfSubCollection: 'yield') > 0 and: [ 
-		  (aSmalltalkExpression indexOfSubCollection: 'yield:') isZero ]
+		  (aSmalltalkExpression indexOfSubCollection: 'yieldUsing:') isZero ]
 ]
 
 { #category : #actions }
@@ -369,6 +369,7 @@ STTemplate >> render [
 STTemplate >> renderNamedYieldsFrom: smalltalkExpression on: rendered [
 
 	| partialRenderingSnippet |
+
 	partialRenderingSnippet := String streamContents: [ :str | 
 		                           str nextPutAll: smalltalkExpression.
 		                           self
@@ -388,21 +389,21 @@ STTemplate >> renderOn: anObject [
 ]
 
 { #category : #actions }
-STTemplate >> renderOn: anObject partial: partial [
+STTemplate >> renderOn: anObject partial: aSTTemplate [
 
 	"Answer the result of rendering the receiver using anObject as template context
-	and the given partial to be yield in the template.
+	and the given aSTTemplate as partial to be yield in the (main)template.
 	The partials are nothing but sub-templates that have also access to the template context.
 	The STTCurrentRenderingContext dynamic variable and STTCurrentRenderingContext gives them
 	access to complete its rendering process."
 
 	^ self
 		  renderOn: anObject
-		  partials: { (#_yield -> partial) } asDictionary
+		  partials: { (#_yield -> aSTTemplate) } asDictionary
 ]
 
 { #category : #actions }
-STTemplate >> renderOn: anObject partials: partialsDictionarish [
+STTemplate >> renderOn: anObject partials: templatesDictionarish [
 
 	"Answer the result of rendering the receiver using anObject as template context
 	and the given partials.
@@ -415,7 +416,7 @@ STTemplate >> renderOn: anObject partials: partialsDictionarish [
 			  | renderingContext |
 			  renderingContext := STTRenderingContext
 				                      on: anObject
-				                      partials: partialsDictionarish.
+				                      templates: templatesDictionarish.
 			  STTCurrentRenderingContext value: renderingContext during: [ 
 				  (self compiledMethodOn: anObject)
 					  valueWithReceiver: anObject
@@ -498,7 +499,8 @@ STTemplate >> renderYieldOn: rendered [
 	| partialRenderingSnippet smalltalkExpression |
 	"Preserves the context in which the partial should be rendered
 	and makes it available by grabbing it from the expected private selector key."
-	smalltalkExpression := 'STT yield: #_yield on: self'.
+
+	smalltalkExpression := 'STT yieldUsing: #_yield'.
 
 	partialRenderingSnippet := String streamContents: [ :str | 
 		                           str nextPutAll: smalltalkExpression.

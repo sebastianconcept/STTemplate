@@ -999,6 +999,39 @@ STTemplateTest >> testWithoutCode [
 ]
 
 { #category : #tests }
+STTemplateTest >> testYieldCustomContextUsingNamedPartial [
+
+	| rendered namedPartial |
+	namedPartial := { (#answer
+	                 ->
+	                 '<p>The answer is <%= 40 + (self at: #plus) %></p>' asSTTemplate) }
+		                asDictionary.
+
+	rendered := '<h1>Contents</h1><div><%= STT yield: self using: ''answer'' %></div>'
+		            sttRenderOn: { (#plus -> 2) } asDictionary
+		            partials: namedPartial.
+
+	self
+		assert: rendered
+		equals: '<h1>Contents</h1><div><p>The answer is 42</p></div>'
+]
+
+{ #category : #tests }
+STTemplateTest >> testYieldCustomContextUsingSinglePartial [
+
+	| rendered partial |
+	partial := '<p>The answer is <%= 40+self %></p>' asSTTemplate.
+
+	rendered := '<h1>Contents</h1><div><%= STT yield %></div>'
+		            sttRenderOn: 2
+		            partial: partial.
+
+	self
+		assert: rendered
+		equals: '<h1>Contents</h1><div><p>The answer is 42</p></div>'
+]
+
+{ #category : #tests }
 STTemplateTest >> testYieldDeeperPartial [
 
 	| template partials alertsTemplate rendered expectedRendering |

@@ -2,7 +2,7 @@
 ```smalltalk
 Metacello new
   baseline: 'Teapot';
-  repository: 'github://zeroflag/Teapot/source';
+  repository: 'github://zeroflag/Teapot:v2.7.0/source';
   load.
 ```
 

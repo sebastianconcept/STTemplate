@@ -77,17 +77,6 @@ STT class >> yield: aContext using: aNamedTemplateToYield [
 ]
 
 { #category : #public }
-STT class >> yieldPartial: anSTTemplate on: aContext [
-
-	| renderingContext outStream result |
-	self deprecated: ' use yield:using:'.	
-	renderingContext := STTCurrentRenderingContext value.
-	outStream := STTCurrentRenderingStream value.
-	result := anSTTemplate renderOn: aContext.
-	outStream nextPutAll: result
-]
-
-{ #category : #public }
 STT class >> yieldUsing: aNamedPartialToYield [
 
 	| renderingContext |

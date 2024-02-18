@@ -1,3 +1,7 @@
+Feb 17, 2024
+===================================
+- Using by default the same convention seen in Ruby on Rails for opening and closing tags `<% 40+2 %>` and `<%= 40+2 %>` .
+
 Jan 25, 2024
 ===================================
 - STT has new deprecated methods in favor of methods that are friendlier to Ride-based applications.

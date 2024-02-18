@@ -388,21 +388,21 @@ STTemplate >> renderOn: anObject [
 ]
 
 { #category : #actions }
-STTemplate >> renderOn: anObject partial: partial [
+STTemplate >> renderOn: anObject partial: aSTTemplate [
 
 	"Answer the result of rendering the receiver using anObject as template context
-	and the given partial to be yield in the template.
+	and the given aSTTemplate as partial to be yield in the (main)template.
 	The partials are nothing but sub-templates that have also access to the template context.
 	The STTCurrentRenderingContext dynamic variable and STTCurrentRenderingContext gives them
 	access to complete its rendering process."
 
 	^ self
 		  renderOn: anObject
-		  partials: { (#_yield -> partial) } asDictionary
+		  partials: { (#_yield -> aSTTemplate) } asDictionary
 ]
 
 { #category : #actions }
-STTemplate >> renderOn: anObject partials: partialsDictionarish [
+STTemplate >> renderOn: anObject partials: templatesDictionarish [
 
 	"Answer the result of rendering the receiver using anObject as template context
 	and the given partials.
@@ -415,7 +415,7 @@ STTemplate >> renderOn: anObject partials: partialsDictionarish [
 			  | renderingContext |
 			  renderingContext := STTRenderingContext
 				                      on: anObject
-				                      partials: partialsDictionarish.
+				                      templates: templatesDictionarish.
 			  STTCurrentRenderingContext value: renderingContext during: [ 
 				  (self compiledMethodOn: anObject)
 					  valueWithReceiver: anObject

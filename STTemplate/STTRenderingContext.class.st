@@ -9,34 +9,34 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'templateContext',
-		'partials'
+		'templates'
 	],
 	#category : #'STTemplate-Core'
 }
 
 { #category : #'instance creation' }
-STTRenderingContext class >> on: aTemplateContext partials: partialsDictionarish [
+STTRenderingContext class >> on: aTemplateContext templates: templatesDictionarish [
 
 	^ self new
 		  initializeOn: aTemplateContext
-		  partials: partialsDictionarish
+		  templates: templatesDictionarish
 ]
 
 { #category : #initialization }
-STTRenderingContext >> initializeOn: aTemplateContext partials: partialsDictionarish [
+STTRenderingContext >> initializeOn: aTemplateContext templates: templatesDictionarish [
 
 	templateContext := aTemplateContext.
-	partials := partialsDictionarish
-]
-
-{ #category : #accessing }
-STTRenderingContext >> partials [
-
-	^ partials
+	templates := templatesDictionarish
 ]
 
 { #category : #accessing }
 STTRenderingContext >> templateContext [
 
 	^ templateContext
+]
+
+{ #category : #accessing }
+STTRenderingContext >> templates [
+
+	^ templates
 ]
